@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MediAI – AI-Powered Healthcare Platform</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+:root{
+  --teal:#0d9488;--teal-dk:#0f766e;--teal-lt:#e6f7f5;
+  --indigo:#6366f1;--indigo-dk:#4f46e5;--indigo-lt:#eef0ff;
+  --navy:#0b1f2e;--slate:#54677a;--white:#fff;--bg:#f3f7fa;
+  --border:#dfeaee;--red:#ef4458;--red-dk:#c2293c;--amber:#f5a35a;--green:#2fb380;--blue:#4c83b6;
+  --radius:16px;
+  --shadow-sm:0 1px 2px rgba(11,31,46,.05),0 1px 6px rgba(11,31,46,.04);
+  --shadow-md:0 4px 14px rgba(11,31,46,.07),0 1px 3px rgba(11,31,46,.05);
+  --shadow-lg:0 14px 34px rgba(11,31,46,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--navy);height:100vh;overflow:hidden;}
+.screen{display:none;width:100vw;height:100vh;overflow-y:auto;flex-direction:column;}
+.screen.active{display:flex;animation:screenIn .35s ease;}
+@keyframes screenIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+nav{display:flex;align-items:center;justify-content:space-between;padding:13px 28px;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);flex-shrink:0;box-shadow:var(--shadow-sm);gap:12px;position:sticky;top:0;z-index:50;}
+.logo{font-family:'Syne',sans-serif;font-size:1.32rem;color:var(--teal);letter-spacing:-.5px;flex-shrink:0;}
+.logo span{color:var(--navy);}
+.nav-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;background:var(--bg);padding:4px;border-radius:12px;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:8px 14px;border-radius:9px;font-size:.78rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--slate);transition:.2s;white-space:nowrap;flex-shrink:0;}
+.nav-tab:hover{color:var(--teal-dk);}
+.nav-tab.active{background:linear-gradient(135deg,var(--teal),var(--teal-dk));color:#fff;box-shadow:0 3px 10px rgba(13,148,136,.35);}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;display:grid;place-items:center;font-size:.75rem;font-weight:700;}
+.page-body{flex:1;padding:26px 32px;overflow-y:auto;}
+.page-title{font-family:'Syne',sans-serif;font-size:1.5rem;color:var(--navy);margin-bottom:6px;letter-spacing:-.3px;}
+.page-sub{font-size:.85rem;color:var(--slate);margin-bottom:20px;}
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:20px 22px;box-shadow:var(--shadow-sm);transition:.2s;}
+.card-sm{padding:14px 16px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.stat-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:16px 18px 16px 16px;box-shadow:var(--shadow-sm);border-left:4px solid var(--teal);transition:.2s;}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.stat-card .label{font-size:.74rem;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;font-weight:600;}
+.stat-card .value{font-size:1.85rem;font-weight:800;color:var(--navy);line-height:1;}
+.stat-card .delta{font-size:.75rem;margin-top:6px;}
+.up{color:var(--green);}.dn{color:var(--red);}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.71rem;font-weight:700;letter-spacing:.2px;}
+.badge-red{background:#fde6e9;color:var(--red-dk);}
+.badge-amber{background:#fef0e0;color:#b5680f;}
+.badge-green{background:#e1f6ec;color:#1f8c5e;}
+.badge-teal{background:var(--teal-lt);color:var(--teal-dk);}
+.badge-grey{background:#eef1f3;color:var(--slate);}
+.badge-blue{background:#e7f0fa;color:var(--blue);}
+.badge-indigo{background:var(--indigo-lt);color:var(--indigo-dk);}
+.btn{padding:9px 18px;border-radius:9px;border:none;font-size:.83rem;font-weight:600;cursor:pointer;transition:.2s;}
+.btn-primary{background:linear-gradient(135deg,var(--teal),var(--teal-dk));color:#fff;box-shadow:0 3px 10px rgba(13,148,136,.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(13,148,136,.4);}
+.btn-ghost{background:transparent;color:var(--teal-dk);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--teal-lt);border-color:var(--teal);}
+.section-label{font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin-bottom:12px;}
+.progress-track{height:6px;border-radius:3px;background:var(--border);margin-top:4px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;background:var(--teal);transition:width .6s ease;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+.qa-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;}
+.qa-btn{display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:12px;background:var(--white);border:1px solid var(--border);font-size:.82rem;font-weight:600;color:var(--navy);cursor:pointer;transition:.2s;box-shadow:var(--shadow-sm);}
+.qa-btn:hover{border-color:var(--teal);background:var(--teal-lt);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.qa-icon{font-size:1.05rem;}
+
+.scope-banner{background:linear-gradient(90deg,#fff7ea,#fffaf0);border:1px solid #f3dca0;border-radius:12px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;margin-bottom:18px;font-size:.8rem;color:#8a6418;line-height:1.55;}
+.scope-banner b{color:#6e4f0f;}
+.not-op-tag{font-size:.7rem;color:var(--slate);}
+
+#s-login{background:radial-gradient(circle at 20% 20%,#123a4a 0%,transparent 50%),radial-gradient(circle at 80% 80%,#0f5c52 0%,transparent 50%),linear-gradient(135deg,var(--navy) 0%,#0f3d56 60%,#0f4f47 100%);align-items:center;justify-content:center;}
+.login-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:22px;padding:40px 44px;width:400px;backdrop-filter:blur(14px);text-align:center;box-shadow:var(--shadow-lg);}
+.login-logo{font-family:'Syne',sans-serif;font-size:2rem;color:#5fe8d8;margin-bottom:4px;}
+.login-logo span{color:#fff;}
+.login-sub{font-size:.82rem;color:#7ecdc5;margin-bottom:28px;}
+.login-label{display:block;text-align:left;font-size:.78rem;color:#a8ccd8;margin-bottom:6px;font-weight:500;}
+.login-input{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.88rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:14px;transition:.2s;}
+.login-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.2);}
+.login-input::placeholder{color:rgba(255,255,255,.3);}
+.login-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--teal),#0e8a7e);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:6px;transition:.2s;font-family:'Inter',sans-serif;box-shadow:0 6px 18px rgba(13,148,136,.35);}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(13,148,136,.45);}
+.login-error{background:rgba(239,68,88,.18);border:1px solid rgba(239,68,88,.4);color:#ff9aa2;border-radius:9px;padding:10px 14px;font-size:.82rem;margin-top:12px;display:none;}
+.login-secure{margin-top:20px;font-size:.72rem;color:rgba(255,255,255,.35);}
+.login-doctors{margin-top:18px;text-align:left;}
+.login-doctors p{font-size:.74rem;color:rgba(255,255,255,.4);margin-bottom:8px;}
+.demo-cred{display:flex;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:9px;padding:8px 12px;font-size:.75rem;color:rgba(255,255,255,.6);cursor:pointer;margin-bottom:4px;border:1px solid rgba(255,255,255,.08);transition:.2s;}
+.demo-cred:hover{background:rgba(255,255,255,.12);}
+
+#s0{background:radial-gradient(circle at 15% 25%,rgba(13,148,136,.25) 0%,transparent 45%),radial-gradient(circle at 85% 75%,rgba(99,102,241,.2) 0%,transparent 45%),linear-gradient(135deg,var(--navy) 0%,#0f3d56 60%,#0f4f47 100%);align-items:center;justify-content:flex-start;text-align:center;padding:50px 24px;}
+.hero-eyebrow{font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:#7ecdc5;margin-bottom:16px;}
+.hero-title{font-family:'Syne',sans-serif;font-size:2.7rem;color:#fff;line-height:1.12;margin-bottom:16px;max-width:700px;letter-spacing:-.5px;}
+.hero-title em{background:linear-gradient(135deg,#5fe8d8,#8d97ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:normal;}
+.hero-sub{font-size:1rem;color:#a8ccd8;max-width:560px;margin:0 auto 30px;line-height:1.65;}
+.hero-btn{padding:13px 32px;border-radius:11px;font-size:.95rem;font-weight:700;background:linear-gradient(135deg,var(--teal),#0e8a7e);color:#fff;border:none;cursor:pointer;transition:.2s;margin-bottom:36px;box-shadow:0 8px 22px rgba(13,148,136,.4);}
+.hero-btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(13,148,136,.5);}
+.pulse-ring{width:130px;height:130px;border-radius:50%;background:rgba(95,232,216,.1);border:2px solid rgba(95,232,216,.3);display:grid;place-items:center;margin:0 auto 26px;animation:pulse 2.5s ease-in-out infinite;}
+.pulse-inner{width:84px;height:84px;border-radius:50%;background:rgba(95,232,216,.16);display:grid;place-items:center;font-size:2.3rem;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.06);opacity:.8}}
+.stack-wrap{max-width:920px;width:100%;margin:0 auto;}
+.stack-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:30px;}
+.stack-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px 14px;text-align:left;transition:.2s;}
+.stack-card:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);}
+.stack-card .sc-title{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#5fe8d8;margin-bottom:10px;}
+.stack-chip{display:inline-block;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.08);color:#d8eef0;font-size:.7rem;margin:0 4px 4px 0;border:1px solid rgba(255,255,255,.1);}
+.hero-team{margin-top:6px;font-size:.78rem;color:#6fa8b8;}
+.hero-team strong{color:#a8d8d4;}
+
+.welcome-strip{background:linear-gradient(110deg,var(--teal),var(--indigo-dk));border-radius:var(--radius);padding:18px 24px;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow-md);}
+.welcome-strip .wt{font-size:1.02rem;font-weight:600;}
+.welcome-strip .ws{font-size:.8rem;opacity:.85;margin-top:3px;}
+.patient-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+.patient-row:last-child{border-bottom:none;}
+.p-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.85rem;flex-shrink:0;}
+.p-name{font-size:.9rem;font-weight:600;}
+.p-detail{font-size:.77rem;color:var(--slate);margin-top:2px;}
+.mini-chart{height:55px;display:flex;align-items:flex-end;gap:4px;}
+.mini-bar{border-radius:4px 4px 0 0;flex:1;background:var(--teal-lt);transition:.2s;}
+.mini-bar.hi{background:linear-gradient(180deg,var(--teal),var(--teal-dk));}
+.alert-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.alert-row:last-child{border-bottom:none;}
+.alert-icon{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(11,31,46,.55);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--white);border-radius:22px;padding:30px 34px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3);}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.25rem;color:var(--navy);margin-bottom:4px;}
+.modal-sub{font-size:.81rem;color:var(--slate);margin-bottom:20px;}
+.form-label{display:block;font-size:.76rem;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.form-input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:.86rem;font-family:'Inter',sans-serif;color:var(--navy);outline:none;transition:.2s;margin-bottom:13px;background:var(--bg);}
+.form-input:focus{border-color:var(--teal);background:var(--white);box-shadow:0 0 0 3px rgba(13,148,136,.12);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-select{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:.86rem;font-family:'Inter',sans-serif;color:var(--navy);outline:none;transition:.2s;margin-bottom:13px;background:var(--bg);}
+.voice-btn{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:11px;border:2px dashed var(--border);background:transparent;cursor:pointer;font-size:.84rem;color:var(--slate);font-family:'Inter',sans-serif;transition:.2s;width:100%;justify-content:center;margin-bottom:13px;}
+.voice-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-lt);}
+.voice-btn.listening{border-color:var(--red);color:var(--red);background:#fde6e9;animation:voicePulse 1s ease-in-out infinite;}
+@keyframes voicePulse{0%,100%{opacity:1}50%{opacity:.6}}
+.voice-transcript{background:var(--teal-lt);border-radius:10px;padding:12px 14px;font-size:.81rem;color:var(--teal-dk);margin-bottom:13px;min-height:38px;display:none;line-height:1.5;}
+.mode-tabs{display:flex;gap:8px;margin-bottom:18px;}
+.mode-tab{flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--border);background:transparent;font-size:.81rem;font-weight:600;cursor:pointer;color:var(--slate);transition:.2s;font-family:'Inter',sans-serif;}
+.mode-tab.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+.form-mode{display:none;}
+.form-mode.active{display:block;}
+
+.ai-fab{position:fixed;bottom:28px;right:28px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;border:none;cursor:pointer;font-size:1.4rem;box-shadow:0 6px 24px rgba(99,102,241,.4);z-index:500;transition:.3s;display:flex;align-items:center;justify-content:center;}
+.ai-fab:hover{transform:scale(1.1) rotate(5deg);}
+.ai-fab .fab-ping{position:absolute;top:-2px;right:-2px;width:16px;height:16px;background:var(--red);border-radius:50%;border:2px solid #fff;font-size:.6rem;display:grid;place-items:center;color:#fff;font-weight:700;}
+.ai-chat-panel{position:fixed;bottom:96px;right:28px;width:368px;background:var(--white);border-radius:20px;box-shadow:var(--shadow-lg);border:1px solid var(--border);z-index:500;display:none;flex-direction:column;overflow:hidden;max-height:520px;}
+.ai-chat-panel.open{display:flex;}
+.ai-chat-header{padding:16px 18px;background:linear-gradient(110deg,var(--teal),var(--indigo-dk));color:#fff;display:flex;align-items:center;gap:10px;}
+.ai-chat-header .ai-dot{width:9px;height:9px;border-radius:50%;background:#7fffde;animation:blink 1.2s infinite;}
+.ai-chat-title{font-weight:700;font-size:.9rem;}
+.ai-chat-sub{font-size:.71rem;opacity:.85;}
+.ai-chat-close{margin-left:auto;background:none;border:none;color:#fff;cursor:pointer;font-size:1.1rem;}
+.ai-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.ai-msg{max-width:88%;padding:10px 13px;border-radius:13px;font-size:.81rem;line-height:1.5;}
+.ai-msg.bot{background:var(--teal-lt);color:var(--navy);align-self:flex-start;border-bottom-left-radius:4px;}
+.ai-msg.user{background:linear-gradient(135deg,var(--teal),var(--teal-dk));color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+.ai-msg.system{background:#f0f4f7;color:var(--slate);align-self:center;font-size:.73rem;font-style:italic;text-align:center;}
+.ai-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);}
+.ai-text-input{flex:1;padding:9px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:.81rem;font-family:'Inter',sans-serif;outline:none;transition:.2s;}
+.ai-text-input:focus{border-color:var(--teal);}
+.ai-send-btn{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--indigo));color:#fff;border:none;cursor:pointer;font-size:1rem;display:grid;place-items:center;}
+.ai-quick-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px;}
+.ai-chip{padding:5px 11px;border-radius:20px;background:var(--teal-lt);color:var(--teal-dk);font-size:.71rem;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:.2s;}
+.ai-chip:hover{background:var(--teal);color:#fff;}
+
+.triage-flow{display:grid;grid-template-columns:1fr 1.3fr;gap:22px;}
+.step-item{display:flex;gap:14px;padding:14px 8px;border-bottom:1px solid var(--border);}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:.75rem;font-weight:700;flex-shrink:0;}
+.step-done{background:var(--green)!important;}
+.result-box{border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-sm);}
+.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.vital-card{background:rgba(0,0,0,.035);border-radius:11px;padding:12px 14px;}
+.vital-label{font-size:.72rem;color:var(--slate);}
+.vital-value{font-size:1.2rem;font-weight:700;margin-top:2px;}
+
+.imaging-layout{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+.scan-viewer{border-radius:var(--radius);background:#070f17;border:1px solid #1e3a4a;overflow:hidden;position:relative;height:320px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);}
+.finding-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.finding-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;}
+.conf-bar{height:5px;border-radius:3px;background:var(--border);margin-top:6px;overflow:hidden;}
+.conf-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.conf-hi{background:var(--red);}.conf-med{background:var(--amber);}.conf-lo{background:var(--green);}
+
+.monitor-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;}
+.vital-big{border-radius:var(--radius);padding:20px 22px;border:1px solid var(--border);background:var(--white);box-shadow:var(--shadow-sm);}
+.vital-big .vb-label{font-size:.74rem;text-transform:uppercase;letter-spacing:.6px;color:var(--slate);}
+.vital-big .vb-val{font-size:2.7rem;font-weight:800;line-height:1.1;margin:5px 0;}
+.vital-big .vb-unit{font-size:.85rem;color:var(--slate);font-weight:400;}
+.ecg-line{width:100%;height:55px;margin-top:8px;}
+.patient-card-mon{display:flex;align-items:center;gap:14px;padding:12px 8px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:10px;transition:.15s;}
+.patient-card-mon:hover{background:var(--bg);}
+.status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.dot-red{background:var(--red);animation:blink 1.2s ease-in-out infinite;}
+.dot-green{background:var(--green);}
+.dot-amber{background:var(--amber);}
+.dot-grey{background:#c2cdd3;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.device-explainer{background:linear-gradient(135deg,#0b1f2e,#143b4e);border-radius:16px;padding:20px 22px;color:#cfe7e4;margin-bottom:18px;}
+.device-explainer .de-title{font-size:.92rem;font-weight:700;color:#5fe8d8;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.de-step{display:flex;gap:10px;align-items:flex-start;font-size:.8rem;line-height:1.55;margin-bottom:8px;color:#aed4d2;}
+.de-step b{color:#e6f5f3;}
+.de-num{width:20px;height:20px;border-radius:50%;background:rgba(95,232,216,.18);color:#5fe8d8;font-size:.68rem;font-weight:700;display:grid;place-items:center;flex-shrink:0;margin-top:1px;}
+.pairing-card{border-radius:16px;padding:18px 20px;border:1.5px dashed var(--border);background:var(--white);margin-bottom:16px;text-align:center;}
+.pairing-card.connected{border:1.5px solid var(--green);background:#f1faf5;}
+.pair-status{font-size:.85rem;font-weight:600;margin:8px 0;}
+.vitals-locked{filter:blur(5px);opacity:.4;pointer-events:none;user-select:none;}
+
+.profile-head{display:flex;gap:18px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.profile-avatar{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:1.4rem;flex-shrink:0;box-shadow:var(--shadow-md);}
+.profile-tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.profile-tab{padding:10px 16px;font-size:.84rem;font-weight:600;color:var(--slate);cursor:pointer;border-bottom:2px solid transparent;background:none;border-left:none;border-right:none;border-top:none;}
+.profile-tab.active{color:var(--teal-dk);border-bottom-color:var(--teal);}
+.profile-panel{display:none;}
+.profile-panel.active{display:block;}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.info-item{background:var(--bg);border-radius:11px;padding:12px 14px;}
+.info-item .il{font-size:.71rem;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;}
+.info-item .iv{font-size:.95rem;font-weight:600;margin-top:2px;}
+.action-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 4px;}
+.action-card{padding:14px 10px;border-radius:13px;border:1.5px solid var(--border);background:var(--white);text-align:center;cursor:pointer;font-size:.77rem;font-weight:600;color:var(--navy);transition:.2s;}
+.action-card:hover{border-color:var(--teal);background:var(--teal-lt);transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.action-card .ac-icon{font-size:1.4rem;display:block;margin-bottom:6px;}
+.doc-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.doc-row:last-child{border-bottom:none;}
+
+.appt-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--border);border-radius:13px;margin-bottom:10px;background:var(--white);box-shadow:var(--shadow-sm);}
+.appt-date-box{width:54px;height:54px;border-radius:11px;background:var(--teal-lt);color:var(--teal-dk);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.appt-date-box .dd{font-size:1.05rem;font-weight:800;line-height:1;}
+.appt-date-box .mm{font-size:.65rem;text-transform:uppercase;font-weight:600;}
+.appt-filters{display:flex;gap:8px;margin-bottom:18px;}
+.filter-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:.78rem;font-weight:600;color:var(--slate);cursor:pointer;transition:.2s;}
+.filter-chip.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+.med-row{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:10px;align-items:center;}
+.med-remove{width:30px;height:30px;border-radius:8px;background:#fde6e9;color:var(--red);border:none;cursor:pointer;font-weight:700;flex-shrink:0;}
+.rx-card{border:1px solid var(--border);border-radius:13px;padding:14px 16px;margin-bottom:10px;}
+.rx-med-tag{display:inline-block;background:var(--teal-lt);color:var(--teal-dk);padding:4px 10px;border-radius:8px;font-size:.76rem;margin:2px 4px 2px 0;}
+
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:11px;font-size:.84rem;font-weight:500;z-index:2000;opacity:0;transition:.3s;pointer-events:none;max-width:90vw;text-align:center;box-shadow:var(--shadow-lg);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:820px){
+  .grid-4{grid-template-columns:1fr 1fr;}
+  .triage-flow,.imaging-layout,.monitor-grid,.grid-2{grid-template-columns:1fr;}
+  .stack-grid{grid-template-columns:1fr 1fr;}
+  .action-grid{grid-template-columns:repeat(3,1fr);}
+  .info-grid{grid-template-columns:1fr 1fr;}
+  .med-row{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">Medi<span>AI</span></div>
+    <div class="login-sub">Secure Doctor Portal · City General Hospital</div>
+    <label class="login-label">Doctor ID / Email</label>
+    <input class="login-input" id="loginId" type="text" placeholder="e.g. DR001 or dr.sharma@hospital.in"/>
+    <label class="login-label">Password</label>
+    <input class="login-input" id="loginPass" type="password" placeholder="Enter your password"/>
+    <button class="login-btn" onclick="doLogin()">🔐 Sign In Securely</button>
+    <div class="login-error" id="loginError">❌ Invalid credentials. Please check your Doctor ID and password.</div>
+    <div class="login-doctors">
+      <p>Demo accounts (click to fill):</p>
+      <div class="demo-cred" onclick="fillCred('DR001','priya123')"><span>👩‍⚕️ Dr. Priya Sharma — Cardiologist</span><span>DR001 / priya123</span></div>
+      <div class="demo-cred" onclick="fillCred('DR002','rahul456')"><span>👨‍⚕️ Dr. Rahul Verma — General Physician</span><span>DR002 / rahul456</span></div>
+    </div>
+    <div class="login-secure">🔒 JWT-secured session · role-based access · expires in 8 hours</div>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div id="s0" class="screen">
+  <div class="pulse-ring"><div class="pulse-inner">🏥</div></div>
+  <p class="hero-eyebrow">HackArena 2.0 · Healthcare Track</p>
+  <h1 class="hero-title">Revolutionising Healthcare<br>with <em>Intelligent AI</em></h1>
+  <p class="hero-sub">A pragmatic, privacy-first platform that augments clinicians, empowers patients, and reduces system friction — built for Indian healthcare realities.</p>
+  <button class="hero-btn" onclick="goTo(1)">Explore Demo →</button>
+
+  <div class="stack-wrap">
+    <p class="section-label" style="color:#5fe8d8;text-align:left;margin-bottom:10px">Technology Stack</p>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="sc-title">🎨 Frontend</div>
+        <span class="stack-chip">HTML5</span><span class="stack-chip">CSS3</span><span class="stack-chip">JavaScript</span><span class="stack-chip">Tailwind CSS</span>
+        <p style="font-size:.7rem;color:#9bc4c2;margin-top:6px">Responsive, accessible clinician &amp; patient UIs</p>
+      </div>
+      <div class="stack-card">
+        <div class="sc-title">🔐 Backend &amp; Auth</div>
+        <span class="stack-chip">Node.js</span><span class="stack-chip">Express.js</span><span class="stack-chip">JWT</span><span class="stack-chip">RBAC</span>
+        <p style="font-size:.7rem;color:#9bc4c2;margin-top:6px">Role-based policies for doctors, nurses, admins</p>
+      </div>
+      <div class="stack-card">
+        <div class="sc-title">🗄️ Database</div>
+        <span class="stack-chip">MongoDB</span>
+        <p style="font-size:.7rem;color:#9bc4c2;margin-top:6px">Flexible clinical document models, fast queries</p>
+      </div>
+      <div class="stack-card">
+        <div class="sc-title">🧠 ML &amp; Data</div>
+        <span class="stack-chip">Scikit-learn</span><span class="stack-chip">Pandas</span><span class="stack-chip">NumPy</span>
+        <p style="font-size:.7rem;color:#9bc4c2;margin-top:6px">Validated triage &amp; anomaly-detection models</p>
+      </div>
+      <div class="stack-card">
+        <div class="sc-title">📊 Viz &amp; Deploy</div>
+        <span class="stack-chip">Power BI</span><span class="stack-chip">Matplotlib</span><span class="stack-chip">GitHub Pages</span>
+        <p style="font-size:.7rem;color:#9bc4c2;margin-top:6px">Reports, dashboards &amp; documentation hosting</p>
+      </div>
+    </div>
+    <p style="font-size:.74rem;color:#6fa8b8;max-width:600px;margin:0 auto">⚠️ This screen is a client-side UI demo only — there is no live Express/MongoDB backend running here. Everything below simulates the intended product behaviour, now fleshed out for all four demo patients.</p>
+  </div>
+  <p class="hero-team">Team: <strong>Khushi Gupta &nbsp;·&nbsp; Anchal Srivastava</strong></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="s1" class="screen">
+  <nav>
+    <div class="logo">Medi<span>AI</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="goTo(1)">Dashboard</button>
+      <button class="nav-tab" onclick="goTo(2)">AI Triage</button>
+      <button class="nav-tab" onclick="goTo(3)">Imaging</button>
+      <button class="nav-tab" onclick="goTo(4)">Monitoring</button>
+      <button class="nav-tab" onclick="goTo(6)">Appointments</button>
+      <button class="nav-tab" onclick="goTo(7)">Prescriptions</button>
+    </div>
+    <div class="nav-right">
+      <span style="font-size:.8rem;color:var(--slate)" id="loggedName">Dr. Priya Sharma</span>
+      <div class="avatar" id="loggedAvatar">PS</div>
+      <button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <div class="welcome-strip">
+      <div>
+        <div class="wt" id="welcomeMsg">Good morning, Dr. Sharma 👋</div>
+        <div class="ws">City General Hospital · Saturday, 20 Jun 2026</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn" style="background:rgba(255,255,255,.22);color:#fff;border:none;cursor:pointer" onclick="openAddPatient()">+ Add Patient</button>
+        <button class="btn" style="background:rgba(255,255,255,.22);color:#fff;border:none;cursor:pointer" onclick="viewPatient('rajan')">Open Critical Case →</button>
+      </div>
+    </div>
+
+    <div class="qa-row">
+      <button class="qa-btn" onclick="openAddPatient()"><span class="qa-icon">➕</span> Add Patient</button>
+      <button class="qa-btn" onclick="openAddAppt()"><span class="qa-icon">📅</span> Book Appointment</button>
+      <button class="qa-btn" onclick="goTo(7)"><span class="qa-icon">💊</span> Write Prescription</button>
+      <button class="qa-btn" onclick="showCriticalAlerts()"><span class="qa-icon">🚨</span> Critical Alerts</button>
+      <button class="qa-btn" onclick="generateReport()"><span class="qa-icon">📊</span> Generate Report</button>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:22px">
+      <div class="stat-card" style="border-left-color:var(--teal)"><div class="label">Patients Today</div><div class="value">48</div><div class="delta up">↑ 12% vs yesterday</div></div>
+      <div class="stat-card" style="border-left-color:var(--indigo)"><div class="label">Avg Wait Time</div><div class="value">18<span style="font-size:1.1rem;font-weight:400"> min</span></div><div class="delta up">↓ 34% reduction</div></div>
+      <div class="stat-card" style="border-left-color:var(--red)"><div class="label">Critical Alerts</div><div class="value" style="color:var(--red)">1</div><div class="delta dn">⚠ Needs attention</div></div>
+      <div class="stat-card" style="border-left-color:var(--green)"><div class="label">AI Accuracy</div><div class="value">94<span style="font-size:1.1rem;font-weight:400">%</span></div><div class="delta up">↑ 2% this week</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="section-label" style="margin-bottom:0">Today's Queue</div>
+          <button class="btn btn-primary" style="font-size:.74rem;padding:6px 14px" onclick="openAddPatient()">+ Add Patient</button>
+        </div>
+        <div id="dashboardQueue"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="section-label">AI Alerts</div>
+          <div class="alert-row"><div class="alert-icon" style="background:#fde6e9">🚨</div><div><div style="font-size:.87rem;font-weight:600">Rajan Arora – Cardiac risk elevated</div><div style="font-size:.76rem;color:var(--slate);margin-top:2px">AI confidence: 91% · Flagged 4 min ago</div></div></div>
+          <div class="alert-row"><div class="alert-icon" style="background:#fef0e0">⚠️</div><div><div style="font-size:.87rem;font-weight:600">Sunita Mehta – SpO₂ below threshold</div><div style="font-size:.76rem;color:var(--slate);margin-top:2px">Remote monitor · 11 min ago</div></div></div>
+          <div class="alert-row"><div class="alert-icon" style="background:#fef0e0">🌡️</div><div><div style="font-size:.87rem;font-weight:600">Ananya Lal – Mild post-op temp rise</div><div style="font-size:.76rem;color:var(--slate);margin-top:2px">Ward monitor · 24 min ago</div></div></div>
+        </div>
+        <div class="card">
+          <div class="section-label">Weekly Patient Volume</div>
+          <div class="mini-chart">
+            <div class="mini-bar" style="height:55%"></div><div class="mini-bar" style="height:70%"></div><div class="mini-bar hi" style="height:60%"></div><div class="mini-bar" style="height:80%"></div><div class="mini-bar hi" style="height:90%"></div><div class="mini-bar" style="height:75%"></div><div class="mini-bar hi" style="height:100%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--slate);margin-top:6px"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI TRIAGE (dynamic) -->
+<div id="s2" class="screen">
+  <nav>
+    <div class="logo">Medi<span>AI</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="goTo(1)">Dashboard</button>
+      <button class="nav-tab active">AI Triage</button>
+      <button class="nav-tab" onclick="goTo(3)">Imaging</button>
+      <button class="nav-tab" onclick="goTo(4)">Monitoring</button>
+      <button class="nav-tab" onclick="goTo(6)">Appointments</button>
+      <button class="nav-tab" onclick="goTo(7)">Prescriptions</button>
+    </div>
+    <div class="nav-right">
+      <span style="font-size:.8rem;color:var(--slate)" id="navName2">Dr. Priya Sharma</span>
+      <div class="avatar" id="navAv2">PS</div>
+      <button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <p class="page-title">AI Triage &amp; Prioritisation</p>
+    <p class="page-sub">Automated intake classifies urgency using symptoms, vitals, and patient history via a scikit-learn risk model.</p>
+    <div id="patientSwitchBar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px"></div>
+    <div id="triageContent"></div>
+  </div>
+</div>
+
+<!-- IMAGING (dynamic) -->
+<div id="s3" class="screen">
+  <nav>
+    <div class="logo">Medi<span>AI</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="goTo(1)">Dashboard</button>
+      <button class="nav-tab" onclick="goTo(2)">AI Triage</button>
+      <button class="nav-tab active">Imaging</button>
+      <button class="nav-tab" onclick="goTo(4)">Monitoring</button>
+      <button class="nav-tab" onclick="goTo(6)">Appointments</button>
+      <button class="nav-tab" onclick="goTo(7)">Prescriptions</button>
+    </div>
+    <div class="nav-right">
+      <span style="font-size:.8rem;color:var(--slate)">Dr. Priya Sharma</span>
+      <div class="avatar">PS</div>
+      <button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <p class="page-title">AI Imaging &amp; Diagnostics</p>
+    <p class="page-sub">Model-assisted image analysis with confidence scores and highlighted anomaly regions.</p>
+    <div id="imagingPatientBar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px"></div>
+    <div id="imagingContent"></div>
+  </div>
+</div>
+
+<!-- MONITORING (dynamic) -->
+<div id="s4" class="screen">
+  <nav>
+    <div class="logo">Medi<span>AI</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="goTo(1)">Dashboard</button>
+      <button class="nav-tab" onclick="goTo(2)">AI Triage</button>
+      <button class="nav-tab" onclick="goTo(3)">Imaging</button>
+      <button class="nav-tab active">Monitoring</button>
+      <button class="nav-tab" onclick="goTo(6)">Appointments</button>
+      <button class="nav-tab" onclick="goTo(7)">Prescriptions</button>
+    </div>
+    <div class="nav-right">
+      <span style="font-size:.8rem;color:var(--slate)">Dr. Priya Sharma</span>
+      <div class="avatar">PS</div>
+      <button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <p class="page-title">Remote Patient Monitoring</p>
+    <p class="page-sub">Real-time vitals from connected medical devices, analysed by an anomaly-detection model — not invented by AI.</p>
+
+    <div class="device-explainer">
+      <div class="de-title">🧠 How does AI actually get heart rate &amp; BP? (no hardware = no data)</div>
+      <div class="de-step"><div class="de-num">1</div><div><b>Physical sensor on the patient</b> — a pulse oximeter, ECG leads, an automatic BP cuff, or a wearable measures the real physiological signal.</div></div>
+      <div class="de-step"><div class="de-num">2</div><div><b>Device firmware</b> computes HR / SpO₂ / BP locally and streams it over Bluetooth LE or Wi-Fi to a bedside gateway — this is the only source of the numbers, AI does not generate them.</div></div>
+      <div class="de-step"><div class="de-num">3</div><div><b>Express.js API</b> receives the reading, validates it, and writes it to <b>MongoDB</b> as a time-series document tied to the patient record.</div></div>
+      <div class="de-step"><div class="de-num">4</div><div><b>Scikit-learn model</b> (trained offline on historical vitals with Pandas/NumPy) reads the stored sequence and flags abnormal trends — it analyses existing sensor data, it cannot "detect" a heartbeat out of thin air.</div></div>
+      <div class="de-step" style="margin-bottom:0"><div class="de-num">5</div><div>The dashboard below just renders whatever is in the database in real time. Switch patients and you'll need to re-pair a device each time — that's intentional, to keep the hardware dependency honest.</div></div>
+    </div>
+
+    <div class="pairing-card" id="pairingCard">
+      <div style="font-size:1.6rem">📡</div>
+      <div class="pair-status" id="pairStatus">No device connected</div>
+      <button class="btn btn-primary" id="pairBtn" onclick="startPairing()">🔗 Connect Device (simulate)</button>
+    </div>
+
+    <div class="monitor-grid">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;gap:10px;align-items:center" class="card card-sm">
+          <div class="status-dot dot-grey" id="monDot"></div>
+          <div><div style="font-weight:600;font-size:.9rem" id="monName">—</div><div style="font-size:.75rem;color:var(--slate)" id="monDeviceLine">—</div></div>
+          <span class="badge badge-grey" id="monBadge" style="margin-left:auto">NO SIGNAL</span>
+        </div>
+        <div class="grid-2" style="gap:12px" id="vitalsBlock"></div>
+        <div class="card"><div class="section-label" style="margin-bottom:12px">AI Anomaly Log</div><div id="anomalyLog" style="display:flex;flex-direction:column;gap:8px"></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="section-label" style="margin-bottom:14px">All Monitored Patients</div>
+          <div id="monitorPatientList"></div>
+        </div>
+        <div class="card" style="background:linear-gradient(135deg,var(--teal),var(--indigo-dk));border:none;color:#fff">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.8;margin-bottom:10px">Platform Impact</div>
+          <div style="font-size:2rem;font-weight:800;margin-bottom:4px">34% ↓</div>
+          <div style="font-size:.85rem;opacity:.85;margin-bottom:16px">reduction in average wait time</div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;opacity:.9"><div><div style="font-weight:700;font-size:1.1rem">91%</div>AI Accuracy</div><div><div style="font-weight:700;font-size:1.1rem">2.4×</div>Faster Triage</div><div><div style="font-weight:700;font-size:1.1rem">18min</div>Avg Wait</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PATIENT PROFILE (dynamic) -->
+<div id="s5" class="screen">
+  <nav>
+    <div class="logo">Medi<span>AI</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="goTo(1)">Dashboard</button>
+      <button class="nav-tab" onclick="goTo(2)">AI Triage</button>
+      <button class="nav-tab" onclick="goTo(3)">Imaging</button>
+      <button class="nav-tab" onclick="goTo(4)">Monitoring</button>
+      <button class="nav-tab" onclick="goTo(6)">Appointments</button>
+      <button class="nav-tab" onclick="goTo(7)">Prescriptions</button>
+    </div>
+    <div class="nav-right">
+      <span style="font-size:.8rem;color:var(--slate)">Dr. Priya Sharma</span>
+      <div class="avatar">PS</div>
+      <button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <button class="btn btn-ghost" style="margin-bottom:16px;font-size:.78rem" onclick="goTo(1)">← Back to Queue</button>
+    <div class="profile-head">
+      <div class="profile-avatar" id="profAvatar">RA</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-family:'Syne',sans-serif;font-size:1.3rem" id="profName">Rajan Arora</span>
+          <span class="badge badge-red" id="profPriority">CRITICAL</span>
+        </div>
+        <div style="font-size:.83rem;color:var(--slate);margin-top:4px" id="profMeta">62y · Male · ICU Bed 3 · Blood Group B+</div>
+      </div>
+    </div>
+
+    <div class="info-grid" style="margin-bottom:20px">
+      <div class="info-item"><div class="il">Chief Complaint</div><div class="iv" id="profComplaint">Chest pain</div></div>
+      <div class="info-item"><div class="il">Blood Group</div><div class="iv" id="profBlood">B+</div></div>
+      <div class="info-item"><div class="il">Status</div><div class="iv" id="profStatus">Admitted</div></div>
+    </div>
+
+    <div class="action-grid">
+      <div class="action-card" onclick="goTo(2)"><span class="ac-icon">🧠</span>AI Triage</div>
+      <div class="action-card" onclick="goTo(3)"><span class="ac-icon">🔬</span>Imaging</div>
+      <div class="action-card" onclick="goTo(4)"><span class="ac-icon">📡</span>Monitoring</div>
+      <div class="action-card" onclick="openAddApptFor(currentPatientId)"><span class="ac-icon">📅</span>Book Appt</div>
+      <div class="action-card" onclick="openRxFor(currentPatientId)"><span class="ac-icon">💊</span>Write Rx</div>
+    </div>
+
+    <div class="profile-tabs">
+      <button class="profile-tab active" onclick="switchProfTab('overview')">Overview</button>
+      <button class="profile-tab" onclick="switchProfTab('vitals')">Vitals</button>
+      <button class="profile-tab" onclick="switchProfTab('history')">History</button>
+      <button class="profile-tab" onclick="switchProfTab('docs')">Documents</button>
+    </div>
+
+    <div class="profile-panel active" id="ptab-overview">
+      <div class="card"><div class="section-label">Clinical Summary</div><p style="font-size:.86rem;line-height:1.7;color:var(--navy)" id="profSummary">—</p></div>
+    </div>
+    <div class="profile-panel" id="ptab-vitals">
+      <div class="card" id="profVitalsCard"></div>
+    </div>
+    <div class="profile-panel" id="ptab-history">
+      <div class="card"><div class="section-label">Medical History</div><p style="font-size:.85rem;color:var(--navy);line-height:1.7" id="profHistory">—</p></div>
+    </div>
+    <div class="profile-panel" id="ptab-docs">
+      <div class="card" id="profDocsCard"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APPOINTMENTS -->
+<div id="s6" class="screen">
+  <nav>
+    <div class="logo">Medi<span>AI</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="goTo(1)">Dashboard</button>
+      <button class="nav-tab" onclick="goTo(2)">AI Triage</button>
+      <button class="nav-tab" onclick="goTo(3)">Imaging</button>
+      <button class="nav-tab" onclick="goTo(4)">Monitoring</button>
+      <button class="nav-tab active">Appointments</button>
+      <button class="nav-tab" onclick="goTo(7)">Prescriptions</button>
+    </div>
+    <div class="nav-right">
+      <span style="font-size:.8rem;color:var(--slate)">Dr. Priya Sharma</span>
+      <div class="avatar">PS</div>
+      <button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+      <div>
+        <p class="page-title">Appointment Management</p>
+        <p class="page-sub" style="margin-bottom:0">Schedule, confirm, and track patient visits across OPDs and wards.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openAddAppt()">+ New Appointment</button>
+    </div>
+    <div class="appt-filters" style="margin-top:18px">
+      <button class="filter-chip active" data-f="all" onclick="filterAppts('all',this)">All</button>
+      <button class="filter-chip" data-f="confirmed" onclick="filterAppts('confirmed',this)">Confirmed</button>
+      <button class="filter-chip" data-f="pending" onclick="filterAppts('pending',this)">Pending</button>
+      <button class="filter-chip" data-f="completed" onclick="filterAppts('completed',this)">Completed</button>
+      <button class="filter-chip" data-f="cancelled" onclick="filterAppts('cancelled',this)">Cancelled</button>
+    </div>
+    <div id="apptList"></div>
+  </div>
+</div>
+
+<!-- PRESCRIPTIONS -->
+<div id="s7" class="screen">
+  <nav>
+    <div class="logo">Medi<span>AI</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="goTo(1)">Dashboard</button>
+      <button class="nav-tab" onclick="goTo(2)">AI Triage</button>
+      <button class="nav-tab" onclick="goTo(3)">Imaging</button>
+      <button class="nav-tab" onclick="goTo(4)">Monitoring</button>
+      <button class="nav-tab" onclick="goTo(6)">Appointments</button>
+      <button class="nav-tab active">Prescriptions</button>
+    </div>
+    <div class="nav-right">
+      <span style="font-size:.8rem;color:var(--slate)">Dr. Priya Sharma</span>
+      <div class="avatar">PS</div>
+      <button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="page-body">
+    <p class="page-title">Prescription Module</p>
+    <p class="page-sub">Build a structured e-prescription, stored as a clinical document in MongoDB.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-label" style="margin-bottom:12px">New Prescription</div>
+        <label class="form-label">Patient</label>
+        <select class="form-select" id="rxPatient"></select>
+        <div class="section-label" style="margin:14px 0 8px">Medicines</div>
+        <div id="rxMedRows"></div>
+        <button class="btn btn-ghost" style="font-size:.78rem;margin-bottom:14px" onclick="addMedRow()">+ Add Medicine</button>
+        <label class="form-label">Notes / Advice</label>
+        <input class="form-input" id="rxNotes" placeholder="e.g. Take after meals, follow up in 7 days"/>
+        <button class="btn btn-primary" style="width:100%" onclick="savePrescription()">💾 Save Prescription</button>
+      </div>
+      <div class="card">
+        <div class="section-label" style="margin-bottom:12px">Prescription History</div>
+        <div id="rxHistory"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PATIENT MODAL -->
+<div class="modal-overlay" id="addPatientModal">
+  <div class="modal-box">
+    <div class="modal-title">➕ Add New Patient</div>
+    <div class="modal-sub">Enter patient details manually or use voice input.</div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tabType" onclick="switchMode('type')">⌨️ Type Manually</button>
+      <button class="mode-tab" id="tabVoice" onclick="switchMode('voice')">🎙️ Voice Input</button>
+    </div>
+    <div class="form-mode active" id="modeType">
+      <div class="form-row">
+        <div><label class="form-label">Patient Name *</label><input class="form-input" id="ptName" type="text" placeholder="Full name"/></div>
+        <div><label class="form-label">Age *</label><input class="form-input" id="ptAge" type="number" placeholder="e.g. 45"/></div>
+      </div>
+      <div class="form-row">
+        <div><label class="form-label">Gender</label><select class="form-select" id="ptGender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div><label class="form-label">OPD / Ward</label><input class="form-input" id="ptOpd" type="text" placeholder="e.g. OPD-5"/></div>
+      </div>
+      <label class="form-label">Chief Complaint *</label>
+      <input class="form-input" id="ptComplaint" type="text" placeholder="e.g. Fever, headache, chest pain..."/>
+      <label class="form-label">Priority</label>
+      <select class="form-select" id="ptPriority">
+        <option value="critical">🔴 Critical</option>
+        <option value="moderate">🟡 Moderate</option>
+        <option value="low" selected>🟢 Low / Routine</option>
+        <option value="scheduled">🔵 Scheduled</option>
+      </select>
+    </div>
+    <div class="form-mode" id="modeVoice">
+      <p style="font-size:.84rem;color:var(--slate);margin-bottom:14px;line-height:1.6">Click the mic and say something like:<br><em>"Patient name Amit Sharma, age 38, male, OPD-2, complaint fever and body ache, priority moderate"</em></p>
+      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎙️ <span id="voiceBtnText">Tap to Start Speaking</span></button>
+      <div class="voice-transcript" id="voiceTranscript">Listening... speak now</div>
+      <div id="voiceParsed" style="display:none">
+        <div class="section-label" style="margin-bottom:8px">Detected Information</div>
+        <div id="voiceParsedContent" style="font-size:.84rem;line-height:1.8;color:var(--navy);background:var(--teal-lt);padding:12px 14px;border-radius:9px;"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-primary" style="flex:1" onclick="savePatient()">✅ Add to Queue</button>
+      <button class="btn btn-ghost" onclick="closeAddPatient()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD APPOINTMENT MODAL -->
+<div class="modal-overlay" id="addApptModal">
+  <div class="modal-box" style="width:480px">
+    <div class="modal-title">📅 New Appointment</div>
+    <div class="modal-sub">Schedule a visit — stored as a MongoDB document linked to the patient record.</div>
+    <label class="form-label">Patient</label>
+    <select class="form-select" id="apptPatient"></select>
+    <div class="form-row">
+      <div><label class="form-label">Date</label><input class="form-input" id="apptDate" type="date"/></div>
+      <div><label class="form-label">Time</label><input class="form-input" id="apptTime" type="time"/></div>
+    </div>
+    <label class="form-label">Visit Type</label>
+    <select class="form-select" id="apptType">
+      <option>Consultation</option><option>Follow-up</option><option>Routine Checkup</option><option>Post-op Review</option><option>Emergency</option>
+    </select>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveAppt()">✅ Schedule</button>
+      <button class="btn btn-ghost" onclick="closeAddAppt()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI ASSISTANT FLOATING -->
+<button class="ai-fab" id="aiFab" onclick="toggleAI()" style="display:none">🤖<span class="fab-ping">AI</span></button>
+<div class="ai-chat-panel" id="aiPanel">
+  <div class="ai-chat-header">
+    <div class="ai-dot"></div>
+    <div><div class="ai-chat-title">MediAI Assistant</div><div class="ai-chat-sub">Speak a command — I'll navigate or edit the portal</div></div>
+    <button class="ai-chat-close" onclick="toggleAI()">✕</button>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="ai-msg bot">👋 Hello Doctor! Try <b>"open appointments"</b>, <b>"write prescription"</b>, <b>"show sunita"</b>, or ask <b>"how do you get vitals"</b>.</div>
+    <div class="ai-msg system">AI Assistant · Portal Commands Enabled</div>
+  </div>
+  <div class="ai-quick-chips">
+    <button class="ai-chip" onclick="aiCommand('go to dashboard')">🏠 Dashboard</button>
+    <button class="ai-chip" onclick="aiCommand('go to triage')">🧠 Triage</button>
+    <button class="ai-chip" onclick="aiCommand('open appointments')">📅 Appointments</button>
+    <button class="ai-chip" onclick="aiCommand('open prescriptions')">💊 Prescriptions</button>
+    <button class="ai-chip" onclick="aiCommand('add patient')">➕ Add Patient</button>
+    <button class="ai-chip" onclick="aiCommand('how do you get vitals')">📡 How vitals work</button>
+  </div>
+  <div class="ai-input-row">
+    <input class="ai-text-input" id="aiInput" placeholder="Type a command..." onkeydown="if(event.key==='Enter')sendAI()"/>
+    <button class="ai-send-btn" onclick="sendAI()">➤</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════ AUTH ══════════════════ */
+const DOCTORS = {
+  'DR001': { pass:'priya123', name:'Dr. Priya Sharma', avatar:'PS' },
+  'DR002': { pass:'rahul456', name:'Dr. Rahul Verma', avatar:'RV' }
+};
+let currentDoctor=null;
+function fillCred(id,pass){ document.getElementById('loginId').value=id; document.getElementById('loginPass').value=pass; }
+function doLogin(){
+  const id=document.getElementById('loginId').value.trim().toUpperCase();
+  const pass=document.getElementById('loginPass').value.trim();
+  const err=document.getElementById('loginError');
+  if(DOCTORS[id] && DOCTORS[id].pass===pass){
+    currentDoctor=DOCTORS[id]; err.style.display='none';
+    document.getElementById('loggedName').textContent=currentDoctor.name;
+    document.getElementById('loggedAvatar').textContent=currentDoctor.avatar;
+    document.getElementById('navName2').textContent=currentDoctor.name;
+    document.getElementById('navAv2').textContent=currentDoctor.avatar;
+    const hour=new Date().getHours();
+    const greet=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+    document.getElementById('welcomeMsg').textContent=`${greet}, ${currentDoctor.name} 👋`;
+    document.getElementById('aiFab').style.display='flex';
+    renderQueue(); renderRxPatientOptions(); renderRxHistory();
+    goTo(0);
+  } else { err.style.display='block'; document.getElementById('loginPass').value=''; }
+}
+function doLogout(){
+  currentDoctor=null;
+  document.getElementById('loginId').value=''; document.getElementById('loginPass').value='';
+  document.getElementById('loginError').style.display='none';
+  document.getElementById('aiFab').style.display='none';
+  document.getElementById('aiPanel').classList.remove('open');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-login').classList.add('active');
+  showToast('Logged out securely ✅');
+}
+
+/* ══════════════════ PATIENT DATA (unique per patient) ══════════════════ */
+const PATIENTS = [
+  { id:'rajan', name:'Rajan Arora', age:62, gender:'Male', complaint:'Chest pain', priority:'critical', opd:'ICU Bed 3', blood:'B+',
+    history:'Hypertension (3 years), Type-2 Diabetes, active smoker (15 cigarettes/day). Known allergy: Penicillin. Father had an MI at age 58.',
+    summary:'62-year-old male presenting with chest pain (7/10) radiating to the left arm, accompanied by sweating. AI triage flagged a 91% confidence STEMI risk based on cardiac history, vitals, and comorbidities.',
+    vitalsIntake:{bp:'158/96',bpC:'red',bpN:'Elevated', hr:'102',hrC:'amber',hrN:'Tachycardic', spo2:'96%',spo2C:'amber',spo2N:'Borderline low', temp:'37.2°C',tempC:'green',tempN:'Normal'},
+    triage:{ riskLevel:'critical', riskTitle:'🚨 CRITICAL – Immediate Care',
+      riskDesc:'High probability of Acute Myocardial Infarction. Patient requires immediate ECG, troponin test, and cardiology consult.',
+      steps:[ {label:'Symptom Intake',detail:'Chest pain (7/10), radiating to left arm, sweating'}, {label:'Vitals Recorded',detail:'BP 158/96 · HR 102 · SpO₂ 96% · Temp 37.2°C'}, {label:'Medical History Analysed',detail:'Hypertension (3y), Type-2 Diabetes, smoker'} ],
+      factors:[ {label:'Cardiac history indicators',pct:82,color:'var(--red)'}, {label:'Age + comorbidity risk',pct:74,color:'var(--amber)'}, {label:'Vitals deviation',pct:67,color:'var(--teal)'} ],
+      nextSteps:['12-lead ECG immediately','Troponin I + CK-MB blood draw','Chest X-ray for cardiac silhouette','Aspirin 325mg if not contraindicated'] },
+    imaging:{ type:'chest', scanType:'Chest X-Ray · PA view', scannedTime:'08:42 AM', priorityTag:'HIGH PRIORITY',
+      findings:[
+        {level:'hi',icon:'🔴',title:'Lung Opacity – Left Upper Lobe',desc:'Possible consolidation. Rule out pneumonia or malignancy.',conf:88,region:{cx:175,cy:140,rx:38,ry:30,color:'#ff6b6b'},label:'Opacity ①'},
+        {level:'med',icon:'🟡',title:'Cardiomegaly – Mild',desc:'Cardiothoracic ratio ≈ 0.54. Correlate with ECG.',conf:73,region:{cx:245,cy:200,rx:30,ry:22,color:'#ffd166'},label:'Enlargement ②'},
+        {level:'lo',icon:'🟢',title:'No Pleural Effusion',desc:'Costophrenic angles clear bilaterally.',conf:95}
+      ],
+      actions:['Urgent CT chest (contrast)','Cardiology consult for cardiomegaly','Repeat CXR in 48h post-treatment','Sputum culture if infectious aetiology'] },
+    monitor:{ device:'Philips IntelliVue MP5 · ICU Bed 3',
+      bp:'162/98',bpC:'red',bpN:'Stage 2 hypertension · via BP cuff', hr:'108',hrC:'red',hrN:'Tachycardic · via ECG leads', spo2:'95%',spo2C:'amber',spo2N:'Borderline · via pulse oximeter', temp:'37.3°C',tempC:'green',tempN:'Normal · via skin sensor',
+      anomalies:[ {icon:'💓',text:'HR exceeded 105 bpm',time:'09:14 AM'}, {icon:'🫁',text:'SpO₂ dropped to 94%',time:'09:08 AM'}, {icon:'🩸',text:'BP spike to 168/102',time:'08:52 AM'} ] } },
+
+  { id:'sunita', name:'Sunita Mehta', age:45, gender:'Female', complaint:'Breathlessness', priority:'moderate', opd:'Ward B', blood:'O+',
+    history:'Bronchial asthma (8 years), seasonal allergic rhinitis. Known allergies: dust mites, NSAIDs. No surgical history.',
+    summary:'45-year-old female presenting with acute breathlessness and wheeze. AI triage flagged a moderate-risk asthma exacerbation with hypoxia based on SpO₂, peak flow, and history.',
+    vitalsIntake:{bp:'138/88',bpC:'amber',bpN:'Mildly elevated', hr:'96',hrC:'amber',hrN:'Slightly raised', spo2:'91%',spo2C:'red',spo2N:'Low', temp:'37.8°C',tempC:'amber',tempN:'Mild fever'},
+    triage:{ riskLevel:'moderate', riskTitle:'⚠️ MODERATE – Urgent Review',
+      riskDesc:'Findings consistent with an acute asthma exacerbation with hypoxia. Recommend nebulisation, steroids, and close SpO₂ monitoring; admit if no improvement within 1 hour.',
+      steps:[ {label:'Symptom Intake',detail:'Breathlessness, audible wheeze, worse at night'}, {label:'Vitals Recorded',detail:'BP 138/88 · HR 96 · SpO₂ 91% · Temp 37.8°C'}, {label:'Medical History Analysed',detail:'Asthma (8y), allergic rhinitis'} ],
+      factors:[ {label:'Airway obstruction signs',pct:71,color:'var(--amber)'}, {label:'Hypoxia severity',pct:64,color:'var(--red)'}, {label:'Allergic trigger likelihood',pct:48,color:'var(--teal)'} ],
+      nextSteps:['Nebulised salbutamol + ipratropium','Oral/IV corticosteroids','Peak flow measurement','Continuous SpO₂ monitoring'] },
+    imaging:{ type:'chest', scanType:'Chest X-Ray · PA view', scannedTime:'09:10 AM', priorityTag:'MODERATE PRIORITY',
+      findings:[
+        {level:'med',icon:'🟡',title:'Hyperinflated Lung Fields',desc:'Flattened diaphragm and increased retrosternal air space, consistent with air trapping.',conf:79,region:{cx:175,cy:150,rx:55,ry:78,color:'#ffd166'},label:'Hyperinflation ①'},
+        {level:'med',icon:'🟡',title:'Bronchial Wall Thickening',desc:'Mild peribronchial cuffing bilaterally, suggestive of airway inflammation.',conf:68,region:{cx:300,cy:160,rx:35,ry:46,color:'#ffd166'},label:'Cuffing ②'},
+        {level:'lo',icon:'🟢',title:'No Consolidation or Effusion',desc:'No focal infiltrate identified.',conf:90}
+      ],
+      actions:['Re-image only if symptoms worsen','Pulmonology referral if recurrent','Spirometry once stable','Review inhaler technique & triggers'] },
+    monitor:{ device:'Portable Pulse Oximeter + Spirometer · Ward B',
+      bp:'140/90',bpC:'amber',bpN:'Mildly elevated · via BP cuff', hr:'98',hrC:'amber',hrN:'Slightly raised · via pulse oximeter', spo2:'90%',spo2C:'red',spo2N:'Low · via pulse oximeter', temp:'37.9°C',tempC:'amber',tempN:'Low-grade fever · via skin sensor',
+      anomalies:[ {icon:'🫁',text:'SpO₂ dropped to 90%',time:'09:20 AM'}, {icon:'💨',text:'Peak flow below 60% predicted',time:'09:05 AM'} ] } },
+
+  { id:'pradeep', name:'Pradeep Kumar', age:34, gender:'Male', complaint:'Routine check', priority:'low', opd:'OPD-2', blood:'A+',
+    history:'No known chronic illness. Non-smoker, occasional alcohol. No known drug allergies. Family history non-contributory.',
+    summary:'34-year-old male attending for a routine annual health checkup. No acute symptoms reported; AI triage found no risk flags across vitals or history.',
+    vitalsIntake:{bp:'118/76',bpC:'green',bpN:'Normal', hr:'72',hrC:'green',hrN:'Normal', spo2:'99%',spo2C:'green',spo2N:'Normal', temp:'36.8°C',tempC:'green',tempN:'Normal'},
+    triage:{ riskLevel:'low', riskTitle:'✅ LOW RISK – Routine',
+      riskDesc:'No acute findings. Vitals and history are unremarkable for a routine annual checkup. Suitable for standard preventive screening.',
+      steps:[ {label:'Symptom Intake',detail:'No complaints — annual wellness visit'}, {label:'Vitals Recorded',detail:'BP 118/76 · HR 72 · SpO₂ 99% · Temp 36.8°C'}, {label:'Medical History Analysed',detail:'No chronic conditions on file'} ],
+      factors:[ {label:'Cardiometabolic risk',pct:12,color:'var(--green)'}, {label:'Lifestyle risk factors',pct:18,color:'var(--green)'}, {label:'Family history weight',pct:9,color:'var(--green)'} ],
+      nextSteps:['Routine blood panel (CBC, lipid profile, HbA1c)','BMI & blood pressure tracking','Annual review in 12 months','Lifestyle counselling (diet/exercise)'] },
+    imaging:{ type:'chest', scanType:'Chest X-Ray · PA view (routine)', scannedTime:'10:05 AM', priorityTag:'ROUTINE',
+      findings:[
+        {level:'lo',icon:'🟢',title:'Clear Lung Fields',desc:'No focal opacity, nodules, or infiltrate.',conf:97},
+        {level:'lo',icon:'🟢',title:'Normal Cardiac Silhouette',desc:'Cardiothoracic ratio within normal limits.',conf:95},
+        {level:'lo',icon:'🟢',title:'No Pleural Abnormality',desc:'Costophrenic angles clear bilaterally.',conf:96}
+      ],
+      actions:['Routine screening complete — no further imaging required','File in annual health record','Discuss lifestyle results at follow-up'] },
+    monitor:{ device:'OPD Vitals Cart · Station 2',
+      bp:'120/78',bpC:'green',bpN:'Normal · via BP cuff', hr:'74',hrC:'green',hrN:'Normal · via pulse oximeter', spo2:'99%',spo2C:'green',spo2N:'Normal · via pulse oximeter', temp:'36.9°C',tempC:'green',tempN:'Normal · via skin sensor',
+      anomalies:[] } },
+
+  { id:'ananya', name:'Ananya Lal', age:29, gender:'Female', complaint:'Post-op review', priority:'low', opd:'Post-op Bay', blood:'AB+',
+    history:'Laparoscopic appendectomy 5 days ago. No known drug allergies. Recovering well with no prior major illness.',
+    summary:'29-year-old female on day 5 post laparoscopic appendectomy, reviewed for routine recovery check. Mild low-grade temperature noted; otherwise recovering as expected.',
+    vitalsIntake:{bp:'112/72',bpC:'green',bpN:'Normal', hr:'82',hrC:'green',hrN:'Normal-high', spo2:'98%',spo2C:'green',spo2N:'Normal', temp:'37.4°C',tempC:'amber',tempN:'Low-grade'},
+    triage:{ riskLevel:'low', riskTitle:'🟢 LOW RISK – Monitor Incision',
+      riskDesc:'Vitals are largely stable post-operatively. Mild low-grade temperature noted — recommend incision site check to rule out early superficial infection.',
+      steps:[ {label:'Symptom Intake',detail:'Mild incision site tenderness, no discharge reported'}, {label:'Vitals Recorded',detail:'BP 112/72 · HR 82 · SpO₂ 98% · Temp 37.4°C'}, {label:'Medical History Analysed',detail:'Post laparoscopic appendectomy, day 5'} ],
+      factors:[ {label:'Surgical site infection risk',pct:22,color:'var(--amber)'}, {label:'Post-op pain control adequacy',pct:15,color:'var(--green)'}, {label:'Mobility / recovery progress',pct:8,color:'var(--green)'} ],
+      nextSteps:['Inspect incision site for redness/discharge','CBC if fever persists beyond 24h','Continue prescribed antibiotics course','Encourage early mobilisation'] },
+    imaging:{ type:'abdomen', scanType:'Abdominal Ultrasound · Post-op', scannedTime:'11:30 AM', priorityTag:'FOLLOW-UP',
+      findings:[
+        {level:'med',icon:'🟡',title:'Mild Peri-incisional Fluid',desc:'Small hypoechoic collection near the surgical site, likely a post-surgical seroma.',conf:66,region:{cx:250,cy:170,rx:26,ry:20,color:'#ffd166'},label:'Seroma ①'},
+        {level:'lo',icon:'🟢',title:'No Intra-abdominal Collection',desc:'No free fluid or abscess identified in the pelvis.',conf:92},
+        {level:'lo',icon:'🟢',title:'Normal Bowel Loops',desc:'No signs of obstruction or ileus.',conf:89}
+      ],
+      actions:['Re-scan in 1 week if seroma persists','Routine wound dressing change','Continue oral antibiotics as prescribed'] },
+    monitor:{ device:'Ward Bedside Monitor · Post-op Bay',
+      bp:'114/74',bpC:'green',bpN:'Normal · via BP cuff', hr:'84',hrC:'green',hrN:'Normal-high · via pulse oximeter', spo2:'98%',spo2C:'green',spo2N:'Normal · via pulse oximeter', temp:'37.5°C',tempC:'amber',tempN:'Trending up · via skin sensor',
+      anomalies:[ {icon:'🌡️',text:'Temp trending up to 37.6°C',time:'11:10 AM'} ] } }
+];
+let currentPatientId='rajan';
+function getPatient(id){ return PATIENTS.find(p=>p.id===id); }
+const COLVAR={red:'var(--red)',amber:'var(--amber)',green:'var(--green)'};
+const PRIORITY_META = {
+  critical:{label:'CRITICAL',badge:'badge-red',bg:'#fde6e9',col:'var(--red-dk)'},
+  moderate:{label:'MODERATE',badge:'badge-amber',bg:'#fef0e0',col:'#b5680f'},
+  low:{label:'LOW',badge:'badge-green',bg:'#e1f6ec',col:'#1f8c5e'},
+  scheduled:{label:'SCHEDULED',badge:'badge-teal',bg:'var(--teal-lt)',col:'var(--teal-dk)'}
+};
+function initials(name){ return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+
+/* ══════════════════ NAV ══════════════════ */
+function goTo(n){
+  if(n>0 && !currentDoctor){ doLogout(); return; }
+  if(n===2) renderTriage(currentPatientId);
+  if(n===3) renderImaging(currentPatientId);
+  if(n===4) renderMonitor(currentPatientId);
+  if(n===5){ renderProfile(currentPatientId); switchProfTab('overview'); }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('s'+n).scrollTop=0;
+}
+
+/* ══════════════════ DASHBOARD QUEUE ══════════════════ */
+function renderQueue(){
+  const c=document.getElementById('dashboardQueue'); if(!c) return;
+  c.innerHTML='';
+  PATIENTS.forEach(p=>{
+    const m=PRIORITY_META[p.priority];
+    const row=document.createElement('div');
+    row.className='patient-row';
+    row.innerHTML=`
+      <div class="p-avatar" style="background:${m.bg};color:${m.col}">${initials(p.name)}</div>
+      <div><div class="p-name">${p.name} <span class="badge ${m.badge}">${m.label}</span></div><div class="p-detail">${p.complaint} · ${p.age}y · ${p.opd}</div></div>
+      <button class="btn btn-ghost" style="margin-left:auto;font-size:.78rem;padding:6px 14px" onclick="viewPatient('${p.id}')">View</button>`;
+    c.appendChild(row);
+  });
+}
+
+/* ══════════════════ PATIENT SWITCH BARS ══════════════════ */
+function patientSwitchHTML(activeId,onClickFn){
+  return PATIENTS.map(p=>{
+    const active = p.id===activeId;
+    const m=PRIORITY_META[p.priority];
+    return `<button class="btn ${active?'btn-primary':'btn-ghost'}" style="font-size:.78rem;padding:7px 14px" onclick="${onClickFn}('${p.id}')">${initials(p.name)} · ${p.name.split(' ')[0]} <span style="opacity:.8">(${m.label})</span></button>`;
+  }).join('');
+}
+
+/* ══════════════════ VIEW PATIENT / PROFILE ══════════════════ */
+function viewPatient(id){ currentPatientId=id; renderProfile(id); switchProfTab('overview'); goTo(5); }
+function renderProfile(id){
+  const p=getPatient(id); if(!p) return;
+  const m=PRIORITY_META[p.priority];
+  document.getElementById('profAvatar').style.background=m.bg;
+  document.getElementById('profAvatar').style.color=m.col;
+  document.getElementById('profAvatar').textContent=initials(p.name);
+  document.getElementById('profName').textContent=p.name;
+  document.getElementById('profPriority').className='badge '+m.badge;
+  document.getElementById('profPriority').textContent=m.label;
+  document.getElementById('profMeta').textContent=`${p.age}y · ${p.gender} · ${p.opd} · Blood Group ${p.blood}`;
+  document.getElementById('profComplaint').textContent=p.complaint;
+  document.getElementById('profBlood').textContent=p.blood;
+  document.getElementById('profStatus').textContent= p.priority==='critical'?'Admitted':(p.opd.toLowerCase().includes('post-op')?'Recovering':'Registered');
+  document.getElementById('profSummary').textContent=p.summary;
+  document.getElementById('profHistory').textContent=p.history;
+  const v=p.vitalsIntake;
+  document.getElementById('profVitalsCard').innerHTML = `<div class="section-label">Latest Vitals (intake)</div>
+    <div class="vitals-grid">
+      <div class="vital-card"><div class="vital-label">Blood Pressure</div><div class="vital-value" style="color:${COLVAR[v.bpC]}">${v.bp}</div><div style="font-size:.7rem;color:var(--slate)">${v.bpN}</div></div>
+      <div class="vital-card"><div class="vital-label">Heart Rate</div><div class="vital-value" style="color:${COLVAR[v.hrC]}">${v.hr}</div><div style="font-size:.7rem;color:var(--slate)">${v.hrN}</div></div>
+      <div class="vital-card"><div class="vital-label">SpO₂</div><div class="vital-value" style="color:${COLVAR[v.spo2C]}">${v.spo2}</div><div style="font-size:.7rem;color:var(--slate)">${v.spo2N}</div></div>
+      <div class="vital-card"><div class="vital-label">Temperature</div><div class="vital-value" style="color:${COLVAR[v.tempC]}">${v.temp}</div><div style="font-size:.7rem;color:var(--slate)">${v.tempN}</div></div>
+    </div>
+    <p style="font-size:.78rem;color:var(--slate);margin-top:10px">For live, continuously-updating numbers see the <b>Monitoring</b> tab — that requires pairing a device, same as for every patient.</p>`;
+  document.getElementById('profDocsCard').innerHTML = `<div class="section-label" style="margin-bottom:8px">Documents &amp; Reports</div>
+    <div class="doc-row"><span>📄</span><div style="flex:1"><div style="font-size:.86rem;font-weight:600">${p.imaging.scanType} Report.pdf</div><div style="font-size:.74rem;color:var(--slate)">Scanned ${p.imaging.scannedTime}</div></div><button class="btn btn-ghost" style="font-size:.74rem;padding:5px 12px" onclick="showToast('📄 Opening document viewer...')">View</button></div>
+    <div class="doc-row"><span>🧪</span><div style="flex:1"><div style="font-size:.86rem;font-weight:600">Lab Results.pdf</div><div style="font-size:.74rem;color:var(--slate)">Uploaded today</div></div><button class="btn btn-ghost" style="font-size:.74rem;padding:5px 12px" onclick="showToast('📄 Opening document viewer...')">View</button></div>
+    <div class="doc-row" style="border-bottom:none"><span>📋</span><div style="flex:1"><div style="font-size:.86rem;font-weight:600">Visit Summary.pdf</div><div style="font-size:.74rem;color:var(--slate)">${p.opd}</div></div><button class="btn btn-ghost" style="font-size:.74rem;padding:5px 12px" onclick="showToast('📄 Opening document viewer...')">View</button></div>`;
+}
+function switchProfTab(tab){
+  document.querySelectorAll('.profile-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.profile-panel').forEach(p=>p.classList.remove('active'));
+  const idx=['overview','vitals','history','docs'].indexOf(tab);
+  document.querySelectorAll('.profile-tab')[idx].classList.add('active');
+  document.getElementById('ptab-'+tab).classList.add('active');
+}
+
+/* ══════════════════ TRIAGE (dynamic) ══════════════════ */
+function selectTriagePatient(id){ currentPatientId=id; renderTriage(id); }
+function renderTriage(id){
+  const p=getPatient(id); const t=p.triage; const m=PRIORITY_META[p.priority];
+  document.getElementById('patientSwitchBar').innerHTML = patientSwitchHTML(id,'selectTriagePatient');
+  const stepsHTML = t.steps.map(s=>`<div class="step-item"><div class="step-num step-done">✓</div><div><div style="font-size:.88rem;font-weight:600">${s.label}</div><div style="font-size:.78rem;color:var(--slate);margin-top:2px">${s.detail}</div></div></div>`).join('');
+  const factorsHTML = t.factors.map(f=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px"><span>${f.label}</span><span style="font-weight:600">${f.pct}%</span></div><div class="progress-track"><div class="progress-fill" style="width:${f.pct}%;background:${f.color}"></div></div></div>`).join('');
+  const nextHTML = t.nextSteps.map((s,i)=>`<div style="display:flex;gap:10px;align-items:center;font-size:.85rem"><span style="color:var(--teal);font-weight:700">${i+1}.</span>${s}</div>`).join('');
+  const v=p.vitalsIntake;
+  const resultBg = t.riskLevel==='critical' ? 'background:#fff3f4;border:2px solid #ffb3bd' : t.riskLevel==='moderate' ? 'background:#fff8ee;border:2px solid #ffd9a0' : 'background:#eefcf5;border:2px solid #a9e9c8';
+  const resultTextCol = t.riskLevel==='critical' ? '#c0392b' : t.riskLevel==='moderate' ? '#a4670f' : '#1f8c5e';
+  document.getElementById('triageContent').innerHTML = `
+    <div class="triage-flow">
+      <div class="card">
+        <div class="section-label" style="margin-bottom:16px">Patient: ${p.name} · ${p.age}y · ${p.gender}</div>
+        ${stepsHTML}
+        <div style="margin-top:16px"><div class="section-label">Risk Factor Weight</div>${factorsHTML}</div>
+      </div>
+      <div>
+        <div class="result-box" style="${resultBg}">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${resultTextCol};margin-bottom:4px">AI Triage Result</div>
+          <div style="font-size:1.5rem;font-weight:800;color:${resultTextCol};margin-bottom:8px">${t.riskTitle}</div>
+          <p style="font-size:.85rem;color:${resultTextCol};line-height:1.6;margin-bottom:14px;opacity:.9">${t.riskDesc}</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="goTo(3)">View Imaging →</button>
+            <button class="btn btn-ghost" onclick="showToast('🔔 Care team notified via Express API alert webhook')">Notify Care Team</button>
+          </div>
+        </div>
+        <div class="vitals-grid">
+          <div class="vital-card"><div class="vital-label">Blood Pressure</div><div class="vital-value" style="color:${COLVAR[v.bpC]}">${v.bp}</div><div style="font-size:.7rem;color:var(--slate)">${v.bpN}</div></div>
+          <div class="vital-card"><div class="vital-label">Heart Rate</div><div class="vital-value" style="color:${COLVAR[v.hrC]}">${v.hr}</div><div style="font-size:.7rem;color:var(--slate)">${v.hrN}</div></div>
+          <div class="vital-card"><div class="vital-label">SpO₂</div><div class="vital-value" style="color:${COLVAR[v.spo2C]}">${v.spo2}</div><div style="font-size:.7rem;color:var(--slate)">${v.spo2N}</div></div>
+          <div class="vital-card"><div class="vital-label">Temperature</div><div class="vital-value" style="color:${COLVAR[v.tempC]}">${v.temp}</div><div style="font-size:.7rem;color:var(--slate)">${v.tempN}</div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><div class="section-label">AI Recommended Next Steps</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${nextHTML}</div></div>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════ IMAGING (dynamic, with SVG generators) ══════════════════ */
+function selectImagingPatient(id){ currentPatientId=id; renderImaging(id); }
+function chestScanSVG(findings){
+  const overlays = findings.filter(f=>f.region).map(f=>{
+    const r=f.region;
+    return `<ellipse cx="${r.cx}" cy="${r.cy}" rx="${r.rx}" ry="${r.ry}" fill="${r.color}22" stroke="${r.color}" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <line x1="${r.cx+r.rx-10}" y1="${r.cy-r.ry+10}" x2="${r.cx+r.rx+25}" y2="${r.cy-r.ry-12}" stroke="${r.color}" stroke-width="1"/>
+      <text x="${r.cx+r.rx+27}" y="${r.cy-r.ry-8}" fill="${r.color}" font-size="10" font-family="Inter,sans-serif">${f.label||''}</text>`;
+  }).join('');
+  return `<svg width="100%" height="100%" viewBox="0 0 500 340" xmlns="http://www.w3.org/2000/svg">
+    <rect width="500" height="340" fill="#070f17"/>
+    <ellipse cx="250" cy="170" rx="160" ry="140" fill="none" stroke="#1e4a5a" stroke-width="1"/>
+    <ellipse cx="175" cy="170" rx="95" ry="120" fill="#0f2535" stroke="#1a3d50" stroke-width="1.5"/>
+    <ellipse cx="325" cy="170" rx="95" ry="120" fill="#0f2535" stroke="#1a3d50" stroke-width="1.5"/>
+    <rect x="240" y="60" width="20" height="220" rx="4" fill="#162c3d"/>
+    <ellipse cx="245" cy="185" rx="55" ry="65" fill="#12202e" stroke="#1e3d4f" stroke-width="1.5"/>
+    <path d="M100 100 Q160 90 200 110" stroke="#1a3d50" stroke-width="1" fill="none"/>
+    <path d="M100 120 Q160 108 205 130" stroke="#1a3d50" stroke-width="1" fill="none"/>
+    <path d="M400 100 Q340 90 300 110" stroke="#1a3d50" stroke-width="1" fill="none"/>
+    <path d="M400 120 Q340 108 295 130" stroke="#1a3d50" stroke-width="1" fill="none"/>
+    ${overlays}
+  </svg>`;
+}
+function abdomenScanSVG(findings){
+  const overlay = findings.find(f=>f.region);
+  const ov = overlay ? `<ellipse cx="${overlay.region.cx}" cy="${overlay.region.cy}" rx="${overlay.region.rx}" ry="${overlay.region.ry}" fill="${overlay.region.color}33" stroke="${overlay.region.color}" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="${overlay.region.cx+overlay.region.rx+8}" y="${overlay.region.cy}" fill="${overlay.region.color}" font-size="10" font-family="Inter,sans-serif">${overlay.label||''}</text>` : '';
+  return `<svg width="100%" height="100%" viewBox="0 0 500 340" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="usGrad" cx="50%" cy="0%" r="85%"><stop offset="0%" stop-color="#3a4750"/><stop offset="60%" stop-color="#1c2630"/><stop offset="100%" stop-color="#070b0f"/></radialGradient></defs>
+    <rect width="500" height="340" fill="#04070a"/>
+    <path d="M250 15 L70 320 Q250 360 430 320 Z" fill="url(#usGrad)" opacity="0.95"/>
+    ${[...Array(14)].map(()=>`<circle cx="${150+Math.random()*200}" cy="${80+Math.random()*220}" r="${4+Math.random()*8}" fill="rgba(255,255,255,${(0.02+Math.random()*0.05).toFixed(2)})"/>`).join('')}
+    <path d="M180 260 Q250 280 320 260" stroke="#566370" stroke-width="1.5" fill="none" opacity=".6"/>
+    ${ov}
+  </svg>`;
+}
+function renderImaging(id){
+  const p=getPatient(id); const im=p.imaging; const m=PRIORITY_META[p.priority];
+  document.getElementById('imagingPatientBar').innerHTML = patientSwitchHTML(id,'selectImagingPatient');
+  const scanSVG = im.type==='chest' ? chestScanSVG(im.findings) : abdomenScanSVG(im.findings);
+  const confClass = lvl => lvl==='hi'?'conf-hi':lvl==='med'?'conf-med':'conf-lo';
+  const iconBg = lvl => lvl==='hi'?'#fde6e9':lvl==='med'?'#fef0e0':'#e1f6ec';
+  const findingsHTML = im.findings.map((f,i)=>`<div class="finding-item" style="${i===im.findings.length-1?'border-bottom:none':''}"><div class="finding-icon" style="background:${iconBg(f.level)}">${f.icon}</div><div style="flex:1"><div style="font-weight:600;font-size:.88rem">${f.title}</div><div style="font-size:.76rem;color:var(--slate);margin-top:2px">${f.desc}</div><div class="conf-bar"><div class="conf-fill ${confClass(f.level)}" style="width:${f.conf}%"></div></div><div style="font-size:.72rem;color:var(--slate);margin-top:2px">Confidence: ${f.conf}%</div></div></div>`).join('');
+  const actionsHTML = im.actions.map(a=>`✅ ${a}`).join('<br>');
+  document.getElementById('imagingContent').innerHTML = `
+    <div class="imaging-layout">
+      <div>
+        <div class="card card-sm" style="margin-bottom:14px">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div class="p-avatar" style="background:${m.bg};color:${m.col};width:34px;height:34px;font-size:.8rem">${initials(p.name)}</div>
+            <div><div style="font-weight:600;font-size:.88rem">${p.name} · ${p.age}y · ${p.gender}</div><div style="font-size:.75rem;color:var(--slate)">${im.scanType} · Scanned ${im.scannedTime}</div></div>
+            <span class="badge ${m.badge}" style="margin-left:auto">${im.priorityTag}</span>
+          </div>
+        </div>
+        <div class="scan-viewer">${scanSVG}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card"><div class="section-label" style="margin-bottom:14px">AI Findings</div>${findingsHTML}</div>
+        <div class="card"><div class="section-label" style="margin-bottom:12px">Recommended Actions</div><div style="font-size:.84rem;line-height:1.9">${actionsHTML}</div><button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="goTo(4)">View Live Monitoring →</button></div>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════ MONITORING / DEVICE PAIRING (dynamic) ══════════════════ */
+let devicePairedFor=null;
+function selectMonitorPatient(id){ currentPatientId=id; renderMonitor(id); }
+function renderMonitor(id){
+  currentPatientId=id;
+  const p=getPatient(id); const mon=p.monitor; const m=PRIORITY_META[p.priority];
+  const paired = devicePairedFor===id;
+  document.getElementById('monName').textContent=`${p.name} — ${p.opd}`;
+  document.getElementById('monDeviceLine').textContent= paired ? `Device: ${mon.device} · Last sync: just now` : `Device: ${mon.device} · Not paired`;
+  document.getElementById('monDot').className='status-dot '+(paired?(p.priority==='critical'?'dot-red':p.priority==='moderate'?'dot-amber':'dot-green'):'dot-grey');
+  document.getElementById('monBadge').className='badge '+(paired?(p.priority==='critical'?'badge-red':p.priority==='moderate'?'badge-amber':'badge-green'):'badge-grey');
+  document.getElementById('monBadge').textContent= paired ? (p.priority==='critical'?'ALERT ACTIVE':p.priority==='moderate'?'WATCH':'STABLE') : 'NO SIGNAL';
+
+  document.getElementById('pairingCard').className='pairing-card'+(paired?' connected':'');
+  document.getElementById('pairStatus').textContent = paired ? `✅ Connected · streaming live vitals via Bluetooth LE → Express API → MongoDB` : `No device connected for ${p.name} — ${p.opd}`;
+  document.getElementById('pairBtn').style.display = paired ? 'none' : 'inline-block';
+  document.getElementById('pairBtn').disabled=false;
+  document.getElementById('pairBtn').textContent='🔗 Connect Device (simulate)';
+
+  const block=document.getElementById('vitalsBlock');
+  block.className='grid-2'+(paired?'':' vitals-locked');
+  block.innerHTML = `
+    <div class="vital-big"><div class="vb-label">Heart Rate</div><div class="vb-val" style="color:${COLVAR[mon.hrC]}">${mon.hr} <span class="vb-unit">bpm</span></div><svg class="ecg-line" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg"><polyline points="0,40 20,40 25,40 30,10 35,50 40,40 70,40 75,40 80,10 85,50 90,40 120,40 125,40 130,10 135,50 140,40 170,40 175,40 180,10 185,50 190,40 200,40" fill="none" stroke="${COLVAR[mon.hrC]}" stroke-width="2"/></svg><div style="font-size:.72rem;color:${COLVAR[mon.hrC]};margin-top:4px">${mon.hrN}</div></div>
+    <div class="vital-big"><div class="vb-label">SpO₂</div><div class="vb-val" style="color:${COLVAR[mon.spo2C]}">${mon.spo2}</div><svg class="ecg-line" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg"><polyline points="0,30 30,28 60,35 90,25 120,30 150,27 180,32 200,29" fill="none" stroke="${COLVAR[mon.spo2C]}" stroke-width="2.5"/></svg><div style="font-size:.72rem;color:${COLVAR[mon.spo2C]};margin-top:4px">${mon.spo2N}</div></div>
+    <div class="vital-big"><div class="vb-label">Blood Pressure</div><div class="vb-val" style="color:${COLVAR[mon.bpC]}">${mon.bp} <span class="vb-unit">mmHg</span></div><svg class="ecg-line" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg"><polyline points="0,20 40,22 80,18 120,24 160,19 200,21" fill="none" stroke="${COLVAR[mon.bpC]}" stroke-width="2.5"/></svg><div style="font-size:.72rem;color:${COLVAR[mon.bpC]};margin-top:4px">${mon.bpN}</div></div>
+    <div class="vital-big"><div class="vb-label">Temperature</div><div class="vb-val" style="color:${COLVAR[mon.tempC]}">${mon.temp}</div><svg class="ecg-line" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg"><polyline points="0,32 40,31 80,33 120,31 160,32 200,31" fill="none" stroke="${COLVAR[mon.tempC]}" stroke-width="2.5"/></svg><div style="font-size:.72rem;color:${COLVAR[mon.tempC]};margin-top:4px">${mon.tempN}</div></div>`;
+
+  const log=document.getElementById('anomalyLog');
+  log.innerHTML = mon.anomalies.length===0
+    ? `<div style="font-size:.82rem;padding:10px 12px;background:#e1f6ec;border-radius:9px;color:#1f8c5e">✅ No anomalies detected in this session</div>`
+    : mon.anomalies.map(a=>`<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:8px 12px;background:#fef0e0;border-radius:9px"><span>${a.icon} ${a.text}</span><span style="color:var(--slate)">${a.time}</span></div>`).join('');
+
+  renderMonitorList();
+}
+function renderMonitorList(){
+  const c=document.getElementById('monitorPatientList'); if(!c) return;
+  c.innerHTML='';
+  PATIENTS.forEach((p,i)=>{
+    const paired = devicePairedFor===p.id;
+    const m=PRIORITY_META[p.priority];
+    const dot = paired ? (p.priority==='critical'?'dot-red':p.priority==='moderate'?'dot-amber':'dot-green') : 'dot-grey';
+    const badge = paired ? `<span class="badge ${p.priority==='critical'?'badge-red':p.priority==='moderate'?'badge-amber':'badge-green'}">${p.priority==='critical'?'ALERT':p.priority==='moderate'?'WATCH':'STABLE'}</span>` : '<span class="badge badge-grey">UNPAIRED</span>';
+    const row=document.createElement('div');
+    row.className='patient-card-mon';
+    row.style.borderBottom = i===PATIENTS.length-1 ? 'none' : '1px solid var(--border)';
+    row.onclick=()=>selectMonitorPatient(p.id);
+    row.innerHTML=`<div class="status-dot ${dot}"></div><div class="p-avatar" style="background:${m.bg};color:${m.col};width:34px;height:34px;font-size:.8rem">${initials(p.name)}</div><div style="flex:1"><div style="font-size:.87rem;font-weight:600">${p.name}</div><div style="font-size:.75rem;color:var(--slate)">${p.opd} · ${paired?'live signal':'awaiting pairing'}</div></div>${badge}`;
+    c.appendChild(row);
+  });
+}
+function startPairing(){
+  const p=getPatient(currentPatientId);
+  const btn=document.getElementById('pairBtn'), status=document.getElementById('pairStatus'), card=document.getElementById('pairingCard');
+  document.getElementById('vitalsBlock').classList.add('vitals-locked');
+  btn.disabled=true; btn.textContent='Connecting…';
+  status.textContent='🔍 Scanning for nearby Bluetooth LE devices...';
+  setTimeout(()=>{ status.textContent=`🔗 Pairing with ${p.monitor.device}...`; },1200);
+  setTimeout(()=>{
+    devicePairedFor=p.id;
+    showToast('📡 Device paired — vitals now streaming for '+p.name);
+    renderMonitor(p.id);
+  },2600);
+}
+
+/* ══════════════════ ADD PATIENT MODAL ══════════════════ */
+function openAddPatient(){ document.getElementById('addPatientModal').classList.add('open'); }
+function closeAddPatient(){ document.getElementById('addPatientModal').classList.remove('open'); resetForm(); }
+function switchMode(m){
+  document.getElementById('tabType').classList.toggle('active', m==='type');
+  document.getElementById('tabVoice').classList.toggle('active', m==='voice');
+  document.getElementById('modeType').classList.toggle('active', m==='type');
+  document.getElementById('modeVoice').classList.toggle('active', m==='voice');
+}
+function resetForm(){
+  ['ptName','ptAge','ptOpd','ptComplaint'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('ptPriority').value='low'; document.getElementById('ptGender').value='Male'; stopVoice();
+}
+let patientCounter=0;
+function savePatient(){
+  const name=document.getElementById('ptName').value.trim();
+  const age=document.getElementById('ptAge').value.trim();
+  const complaint=document.getElementById('ptComplaint').value.trim();
+  const priority=document.getElementById('ptPriority').value;
+  const opd=document.getElementById('ptOpd').value.trim()||'OPD';
+  const gender=document.getElementById('ptGender').value;
+  if(!name||!age||!complaint){ showToast('⚠️ Name, age and complaint are required'); return; }
+  patientCounter++;
+  const id='new'+patientCounter;
+  const baseVitals = priority==='critical' ? {bp:'150/94',bpC:'red',bpN:'Elevated',hr:'104',hrC:'red',hrN:'Tachycardic',spo2:'93%',spo2C:'amber',spo2N:'Low',temp:'37.6°C',tempC:'amber',tempN:'Mild fever'}
+    : priority==='moderate' ? {bp:'134/86',bpC:'amber',bpN:'Mildly elevated',hr:'90',hrC:'amber',hrN:'Slightly raised',spo2:'95%',spo2C:'amber',spo2N:'Borderline',temp:'37.5°C',tempC:'amber',tempN:'Low-grade'}
+    : {bp:'118/76',bpC:'green',bpN:'Normal',hr:'74',hrC:'green',hrN:'Normal',spo2:'98%',spo2C:'green',spo2N:'Normal',temp:'36.9°C',tempC:'green',tempN:'Normal'};
+  PATIENTS.push({ id, name, age, gender, complaint, priority, opd, blood:'—',
+    history:'No detailed history on file yet — newly registered in this prototype session.',
+    summary:`${age}-year-old ${gender.toLowerCase()} registered with: ${complaint}.`,
+    vitalsIntake:baseVitals,
+    triage:{ riskLevel:priority, riskTitle: priority==='critical'?'🚨 Needs Review':priority==='moderate'?'⚠️ Needs Review':'✅ Low Risk',
+      riskDesc:'Newly registered patient — full case work-up pending further intake.',
+      steps:[{label:'Symptom Intake',detail:complaint},{label:'Vitals Recorded',detail:`BP ${baseVitals.bp} · HR ${baseVitals.hr} · SpO₂ ${baseVitals.spo2} · Temp ${baseVitals.temp}`},{label:'Medical History',detail:'Pending — not yet collected'}],
+      factors:[{label:'Initial vitals deviation',pct:priority==='critical'?70:priority==='moderate'?45:15,color:priority==='critical'?'var(--red)':priority==='moderate'?'var(--amber)':'var(--green)'}],
+      nextSteps:['Complete full history intake','Order baseline labs','Re-assess in 30 minutes'] },
+    imaging:{ type:'chest', scanType:'Chest X-Ray · pending', scannedTime:'Not yet scanned', priorityTag:priority.toUpperCase(),
+      findings:[{level:'lo',icon:'⏳',title:'Imaging Not Yet Ordered',desc:'No scan has been taken for this newly added patient.',conf:0}], actions:['Order imaging once clinically indicated'] },
+    monitor:{ device:'Unassigned device', bp:baseVitals.bp,bpC:baseVitals.bpC,bpN:baseVitals.bpN, hr:baseVitals.hr,hrC:baseVitals.hrC,hrN:baseVitals.hrN, spo2:baseVitals.spo2,spo2C:baseVitals.spo2C,spo2N:baseVitals.spo2N, temp:baseVitals.temp,tempC:baseVitals.tempC,tempN:baseVitals.tempN, anomalies:[] }
+  });
+  renderQueue(); renderMonitorList(); renderRxPatientOptions();
+  closeAddPatient();
+  showToast(`✅ ${name} added to queue!`);
+}
+
+/* ══════════════════ VOICE INPUT ══════════════════ */
+let recognition=null, isListening=false;
+function toggleVoice(){ if(!isListening) startVoice(); else stopVoice(); }
+function startVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ simulateVoice(); return; }
+  recognition=new SR(); recognition.lang='en-IN'; recognition.continuous=false; recognition.interimResults=false;
+  recognition.onstart=()=>{ isListening=true; document.getElementById('voiceBtn').classList.add('listening'); document.getElementById('voiceBtnText').textContent='🔴 Listening... speak now'; document.getElementById('voiceTranscript').style.display='block'; document.getElementById('voiceTranscript').textContent='Listening...'; };
+  recognition.onresult=(e)=>{ const t=e.results[0][0].transcript; document.getElementById('voiceTranscript').textContent='"'+t+'"'; parseVoiceInput(t); stopVoice(); };
+  recognition.onerror=()=>{ simulateVoice(); };
+  recognition.start();
+}
+function stopVoice(){
+  isListening=false; if(recognition){ try{recognition.stop();}catch(e){} }
+  document.getElementById('voiceBtn').classList.remove('listening');
+  document.getElementById('voiceBtnText').textContent='Tap to Start Speaking';
+  document.getElementById('voiceTranscript').style.display='none';
+}
+function simulateVoice(){
+  isListening=true;
+  document.getElementById('voiceBtn').classList.add('listening');
+  document.getElementById('voiceBtnText').textContent='🔴 Simulating voice...';
+  document.getElementById('voiceTranscript').style.display='block';
+  document.getElementById('voiceTranscript').textContent='Listening...';
+  setTimeout(()=>{
+    const demo="Patient name Amit Sharma age 38 male OPD-5 complaint fever and body ache priority moderate";
+    document.getElementById('voiceTranscript').textContent='"'+demo+'"';
+    parseVoiceInput(demo); stopVoice();
+  },2000);
+}
+function parseVoiceInput(text){
+  const t=text.toLowerCase();
+  let name='',age='',opd='',complaint='',priority='low';
+  const nameM=t.match(/(?:patient name|name)\s+([a-z\s]+?)(?:\s+age|\s+\d|,|$)/i);
+  const ageM=t.match(/age\s+(\d+)/i);
+  const opdM=t.match(/opd[\s-]*(\w+)/i);
+  const priM=t.match(/(critical|moderate|low|routine|scheduled)/i);
+  const compM=t.match(/complaint\s+(.+?)(?:\s+priority|$)/i);
+  if(nameM) name=nameM[1].trim().replace(/\b\w/g,l=>l.toUpperCase());
+  if(ageM) age=ageM[1];
+  if(opdM) opd='OPD-'+opdM[1].toUpperCase();
+  if(priM) priority=priM[1].toLowerCase()==='routine'?'low':priM[1].toLowerCase();
+  if(compM) complaint=compM[1].trim().replace(/\b\w/g,l=>l.toUpperCase());
+  if(name) document.getElementById('ptName').value=name;
+  if(age) document.getElementById('ptAge').value=age;
+  if(opd) document.getElementById('ptOpd').value=opd;
+  if(complaint) document.getElementById('ptComplaint').value=complaint;
+  if(priority) document.getElementById('ptPriority').value=priority;
+  const html=[name?`<b>Name:</b> ${name}`:'',age?`<b>Age:</b> ${age}`:'',opd?`<b>OPD:</b> ${opd}`:'',complaint?`<b>Complaint:</b> ${complaint}`:'',priority?`<b>Priority:</b> ${priority.toUpperCase()}`:''].filter(Boolean).join('<br>');
+  document.getElementById('voiceParsed').style.display='block';
+  document.getElementById('voiceParsedContent').innerHTML=html||'Could not parse — please switch to Type mode.';
+  setTimeout(()=>switchMode('type'),1200);
+}
+
+/* ══════════════════ APPOINTMENTS ══════════════════ */
+let APPOINTMENTS=[
+  {id:1,patient:'Rajan Arora',date:'2026-06-20',time:'10:00 AM',type:'Follow-up',status:'confirmed'},
+  {id:2,patient:'Sunita Mehta',date:'2026-06-20',time:'11:30 AM',type:'Consultation',status:'pending'},
+  {id:3,patient:'Pradeep Kumar',date:'2026-06-21',time:'09:00 AM',type:'Routine Checkup',status:'confirmed'},
+  {id:4,patient:'Ananya Lal',date:'2026-06-19',time:'04:00 PM',type:'Post-op Review',status:'completed'}
+];
+let apptFilter='all', apptCounter=4;
+const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+function renderAppts(){
+  const c=document.getElementById('apptList'); if(!c) return;
+  c.innerHTML='';
+  const list = apptFilter==='all' ? APPOINTMENTS : APPOINTMENTS.filter(a=>a.status===apptFilter);
+  if(list.length===0){ c.innerHTML='<p style="font-size:.85rem;color:var(--slate);padding:20px 0;text-align:center">No appointments in this filter.</p>'; return; }
+  const statusMeta={confirmed:'badge-green',pending:'badge-amber',completed:'badge-blue',cancelled:'badge-red'};
+  list.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(a=>{
+    const d=new Date(a.date+'T00:00:00');
+    const card=document.createElement('div');
+    card.className='appt-card';
+    card.innerHTML=`
+      <div class="appt-date-box"><div class="dd">${d.getDate()}</div><div class="mm">${MONTHS[d.getMonth()]}</div></div>
+      <div style="flex:1"><div style="font-weight:600;font-size:.9rem">${a.patient}</div><div style="font-size:.78rem;color:var(--slate)">${a.type} · ${a.time}</div></div>
+      <span class="badge ${statusMeta[a.status]}">${a.status.toUpperCase()}</span>
+      ${a.status==='pending'?`<button class="btn btn-primary" style="font-size:.74rem;padding:6px 12px" onclick="setApptStatus(${a.id},'confirmed')">Confirm</button>`:''}
+      ${a.status!=='cancelled'&&a.status!=='completed'?`<button class="btn btn-ghost" style="font-size:.74rem;padding:6px 12px" onclick="setApptStatus(${a.id},'cancelled')">Cancel</button>`:''}`;
+    c.appendChild(card);
+  });
+}
+function setApptStatus(id,status){ const a=APPOINTMENTS.find(x=>x.id===id); if(a){ a.status=status; renderAppts(); showToast('📅 Appointment '+status); } }
+function filterAppts(f,el){ apptFilter=f; document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); renderAppts(); }
+function openAddAppt(){ renderApptPatientOptions(); document.getElementById('apptDate').value='2026-06-20'; document.getElementById('addApptModal').classList.add('open'); }
+function openAddApptFor(id){ goTo(6); setTimeout(()=>{ openAddAppt(); document.getElementById('apptPatient').value=id; },200); }
+function closeAddAppt(){ document.getElementById('addApptModal').classList.remove('open'); }
+function renderApptPatientOptions(){
+  const sel=document.getElementById('apptPatient'); sel.innerHTML='';
+  PATIENTS.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; sel.appendChild(o); });
+}
+function saveAppt(){
+  const pid=document.getElementById('apptPatient').value;
+  const p=getPatient(pid);
+  const date=document.getElementById('apptDate').value;
+  const time=document.getElementById('apptTime').value;
+  const type=document.getElementById('apptType').value;
+  if(!date||!time){ showToast('⚠️ Please pick a date and time'); return; }
+  apptCounter++;
+  const t12=formatTime(time);
+  APPOINTMENTS.push({id:apptCounter,patient:p.name,date,time:t12,type,status:'pending'});
+  renderAppts(); closeAddAppt();
+  showToast('✅ Appointment scheduled for '+p.name);
+}
+function formatTime(t){ const [h,m]=t.split(':'); const hh=parseInt(h,10); const ap=hh>=12?'PM':'AM'; const h12=((hh+11)%12)+1; return `${h12}:${m} ${ap}`; }
+
+/* ══════════════════ PRESCRIPTIONS ══════════════════ */
+let PRESCRIPTIONS=[ {id:1,patient:'Rajan Arora',date:'2026-06-18',meds:[{name:'Aspirin',dose:'75mg',freq:'OD',duration:'30 days'},{name:'Atorvastatin',dose:'20mg',freq:'HS',duration:'30 days'}],notes:'Take after breakfast.'} ];
+let rxCounter=1, medRowCounter=0;
+function renderRxPatientOptions(){
+  const sel=document.getElementById('rxPatient'); if(!sel) return;
+  sel.innerHTML='';
+  PATIENTS.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; sel.appendChild(o); });
+}
+function openRxFor(id){ goTo(7); setTimeout(()=>{ document.getElementById('rxPatient').value=id; },200); }
+function addMedRow(){
+  medRowCounter++;
+  const id='med'+medRowCounter;
+  const row=document.createElement('div');
+  row.className='med-row'; row.id=id;
+  row.innerHTML=`
+    <input class="form-input" style="margin-bottom:0" placeholder="Medicine name" data-f="name"/>
+    <input class="form-input" style="margin-bottom:0" placeholder="Dose (e.g. 500mg)" data-f="dose"/>
+    <input class="form-input" style="margin-bottom:0" placeholder="Freq (e.g. BD)" data-f="freq"/>
+    <input class="form-input" style="margin-bottom:0" placeholder="Duration" data-f="duration"/>
+    <button class="med-remove" onclick="document.getElementById('${id}').remove()">✕</button>`;
+  document.getElementById('rxMedRows').appendChild(row);
+}
+function savePrescription(){
+  const pid=document.getElementById('rxPatient').value;
+  const p=getPatient(pid);
+  const rows=[...document.querySelectorAll('#rxMedRows .med-row')];
+  const meds=rows.map(r=>{
+    const get=f=>r.querySelector(`[data-f="${f}"]`).value.trim();
+    return {name:get('name'),dose:get('dose'),freq:get('freq'),duration:get('duration')};
+  }).filter(med=>med.name);
+  if(meds.length===0){ showToast('⚠️ Add at least one medicine'); return; }
+  rxCounter++;
+  PRESCRIPTIONS.unshift({id:rxCounter,patient:p.name,date:'2026-06-20',meds,notes:document.getElementById('rxNotes').value.trim()});
+  document.getElementById('rxMedRows').innerHTML='';
+  document.getElementById('rxNotes').value='';
+  renderRxHistory();
+  showToast('💾 Prescription saved for '+p.name);
+}
+function renderRxHistory(){
+  const c=document.getElementById('rxHistory'); if(!c) return;
+  c.innerHTML='';
+  if(PRESCRIPTIONS.length===0){ c.innerHTML='<p style="font-size:.85rem;color:var(--slate)">No prescriptions yet.</p>'; return; }
+  PRESCRIPTIONS.forEach(rx=>{
+    const card=document.createElement('div');
+    card.className='rx-card';
+    card.innerHTML=`
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-weight:600;font-size:.88rem">${rx.patient}</span><span style="font-size:.74rem;color:var(--slate)">${rx.date}</span></div>
+      <div>${rx.meds.map(med=>`<span class="rx-med-tag">${med.name} ${med.dose} · ${med.freq} · ${med.duration}</span>`).join('')}</div>
+      ${rx.notes?`<p style="font-size:.78rem;color:var(--slate);margin-top:6px">📝 ${rx.notes}</p>`:''}
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="showToast('🖨️ Sending to printer...')">Print</button>
+        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="showToast('⬇️ Downloading PDF...')">Download</button>
+      </div>`;
+    c.appendChild(card);
+  });
+}
+addMedRow();
+
+/* ══════════════════ DASHBOARD QUICK ACTIONS ══════════════════ */
+function showCriticalAlerts(){ goTo(1); showToast('🚨 1 critical patient flagged: Rajan Arora (91% AI confidence)'); }
+function generateReport(){ showToast('📊 Generating Power BI / Matplotlib report... (simulated — needs backend export job)'); }
+
+/* ══════════════════ AI ASSISTANT ══════════════════ */
+const AI_RESPONSES = {
+  'go to dashboard':{action:()=>goTo(1),reply:'📊 Opening Dashboard...'},
+  'dashboard':{action:()=>goTo(1),reply:'📊 Opening Dashboard...'},
+  'go to triage':{action:()=>goTo(2),reply:'🧠 Opening AI Triage...'},
+  'triage':{action:()=>goTo(2),reply:'🧠 Opening AI Triage...'},
+  'go to imaging':{action:()=>goTo(3),reply:'🔬 Opening Imaging & Diagnostics...'},
+  'imaging':{action:()=>goTo(3),reply:'🔬 Opening Imaging & Diagnostics...'},
+  'go to monitoring':{action:()=>goTo(4),reply:'📡 Opening Remote Monitoring...'},
+  'monitoring':{action:()=>goTo(4),reply:'📡 Opening Remote Monitoring...'},
+  'open appointments':{action:()=>goTo(6),reply:'📅 Opening Appointment Management...'},
+  'appointments':{action:()=>goTo(6),reply:'📅 Opening Appointment Management...'},
+  'book appointment':{action:()=>{goTo(6);setTimeout(openAddAppt,300);},reply:'📅 Opening the new appointment form...'},
+  'open prescriptions':{action:()=>goTo(7),reply:'💊 Opening Prescription Module...'},
+  'prescriptions':{action:()=>goTo(7),reply:'💊 Opening Prescription Module...'},
+  'write prescription':{action:()=>goTo(7),reply:'💊 Opening Prescription Module...'},
+  'add patient':{action:()=>{goTo(1);setTimeout(openAddPatient,300);},reply:'➕ Opening Add Patient form...'},
+  'show alerts':{action:()=>goTo(1),reply:'⚠️ There is 1 active critical alert. Navigating to Dashboard...'},
+  'logout':{action:()=>setTimeout(doLogout,800),reply:'🔐 Logging you out securely...'},
+  'show rajan':{action:()=>viewPatient('rajan'),reply:'👤 Opening Rajan Arora\'s profile...'},
+  'show sunita':{action:()=>viewPatient('sunita'),reply:'👤 Opening Sunita Mehta\'s profile...'},
+  'show pradeep':{action:()=>viewPatient('pradeep'),reply:'👤 Opening Pradeep Kumar\'s profile...'},
+  'show ananya':{action:()=>viewPatient('ananya'),reply:'👤 Opening Ananya Lal\'s profile...'},
+  'help':{action:null,reply:'I can navigate the whole portal: <b>go to triage</b>, <b>open appointments</b>, <b>write prescription</b>, <b>show sunita</b>, <b>add patient</b>, <b>logout</b> — or ask me <b>how do you get vitals</b>.'},
+};
+function toggleAI(){
+  document.getElementById('aiPanel').classList.toggle('open');
+  if(document.getElementById('aiPanel').classList.contains('open')) document.getElementById('aiInput').focus();
+}
+function sendAI(){
+  const input=document.getElementById('aiInput'); const text=input.value.trim(); if(!text) return;
+  addAIMsg(text,'user'); input.value='';
+  setTimeout(()=>processAICommand(text),400);
+}
+function aiCommand(cmd){ addAIMsg(cmd,'user'); setTimeout(()=>processAICommand(cmd),400); }
+function addAIMsg(text,role){
+  const el=document.createElement('div'); el.className='ai-msg '+role; el.innerHTML=text;
+  document.getElementById('aiMessages').appendChild(el);
+  document.getElementById('aiMessages').scrollTop=9999;
+}
+function processAICommand(text){
+  const t=text.toLowerCase().trim();
+  if(t.includes('vital')||t.includes('heart rate')||t.includes('detect')||t.includes('hardware')){
+    addAIMsg('📡 Short answer: I never invent vitals. A real sensor (pulse oximeter, ECG leads, BP cuff or wearable) measures the signal, the device streams it to our Express API, it lands in MongoDB, and only then does the scikit-learn model analyse it for anomalies. No device paired = no data shown — check the Monitoring tab for the live pairing demo, which now works the same way for every patient.','bot');
+    return;
+  }
+  let matched=null;
+  for(const key of Object.keys(AI_RESPONSES)){ if(t.includes(key)){ matched=AI_RESPONSES[key]; break; } }
+  if(matched){
+    addAIMsg(matched.reply,'bot');
+    if(matched.action) setTimeout(matched.action,600);
+  } else {
+    let reply="I'm not sure about that. Try: <b>go to triage</b>, <b>open appointments</b>, <b>write prescription</b>, or <b>logout</b>.";
+    if(t.includes('rajan')||t.includes('critical')) reply='🚨 Rajan Arora is the only critical case right now — ICU Bed 3, 91% AI confidence STEMI risk.';
+    else if(t.includes('wait')||t.includes('time')) reply='⏱ Average wait time today is 18 minutes — 34% lower than baseline thanks to AI triage routing.';
+    else if(t.includes('patient')) reply='👥 48 patients seen today across 4 detailed demo cases: Rajan (critical), Sunita (moderate), Pradeep (low), Ananya (low/post-op).';
+    addAIMsg(reply,'bot');
+  }
+}
+
+/* ══════════════════ TOAST ══════════════════ */
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+renderQueue(); renderAppts(); renderRxPatientOptions(); renderRxHistory();
+</script>
+</body>
+</html>
